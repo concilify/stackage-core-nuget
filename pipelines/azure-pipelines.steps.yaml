@@ -2,8 +2,13 @@ parameters:
   version: '0.0.0'
 
 steps:
-- script: dotnet restore
+- task: DotNetCoreCLI@2
   displayName: Restore
+  inputs:
+    command: restore
+    feedsToUse: 'config'
+    nugetConfigPath: './package/NuGet.config'
+    verbosityRestore: 'Minimal'
 
 - script: dotnet build --configuration Release --no-restore --no-incremental /p:Version=${{ parameters.version }}
   displayName: Build
