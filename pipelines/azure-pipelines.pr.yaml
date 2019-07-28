@@ -1,0 +1,23 @@
+name: 0.0.$(System.PullRequest.PullRequestId)-pr-$(Rev:rr)
+
+trigger:
+  batch: false
+  branches:
+    exclude:
+    - master
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+steps:
+- template: azure-pipelines.steps.yaml
+  parameters:
+    version: $(Build.BuildNumber)
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: push
+    nuGetFeedType: internal
+    packagesToPush: $(Build.ArtifactStagingDirectory)/*.nupkg
+    publishVstsFeed: stackage
+  displayName: Publish

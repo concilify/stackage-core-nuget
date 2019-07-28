@@ -1,0 +1,32 @@
+name: 0.$(Date:yyMM).$(DayOfMonth)-ci-$(Rev:rr)
+
+trigger:
+  batch: false
+  branches:
+    include:
+    - master
+
+# schedules:
+# - cron: '0 0 * * *' # 0000UTC Mon-Sun
+#   displayName: Nightly build
+#   branches:
+#     include:
+#     - master
+#   always: true
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+steps:
+- template: azure-pipelines.steps.yaml
+  parameters:
+    version: $(Build.BuildNumber)
+
+- task: DotNetCoreCLI@2
+  condition: and(succeeded(), in(variables['Build.Reason'], 'Manual', 'IndividualCI', 'BatchedCI'))
+  inputs:
+    command: push
+    nuGetFeedType: internal
+    packagesToPush: $(Build.ArtifactStagingDirectory)/*.nupkg
+    publishVstsFeed: stackage
+  displayName: Publish

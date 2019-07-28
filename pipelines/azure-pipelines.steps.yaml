@@ -1,0 +1,18 @@
+parameters:
+  version: '0.0.0'
+
+steps:
+- script: dotnet restore
+  displayName: Restore
+
+- script: dotnet build --configuration Release --no-restore --no-incremental /p:Version=${{ parameters.version }}
+  displayName: Build
+
+- task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: test
+    arguments: '--configuration Release --no-build --verbosity Normal'
+
+- script: dotnet pack --configuration Release /p:Version=${{ parameters.version }} --no-build --output $(Build.ArtifactStagingDirectory)
+  displayName: Package
