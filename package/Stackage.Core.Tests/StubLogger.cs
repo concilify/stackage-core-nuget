@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
-namespace Stackage.Core.Tests.Metrics
+namespace Stackage.Core.Tests
 {
    public class StubLogger<T> : ILogger<T>
    {

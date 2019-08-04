@@ -1,16 +1,19 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Stackage.Core.Abstractions.Metrics;
 
-namespace Stackage.Core.Tests.Metrics
+namespace Stackage.Core.Tests
 {
    public class StubMetricSink : IMetricSink
    {
-      public IList<IMetric> Metrics { get; } = new List<IMetric>();
+      private readonly ConcurrentQueue<IMetric> _metrics = new ConcurrentQueue<IMetric>();
+
+      public IReadOnlyCollection<IMetric> Metrics => _metrics;
 
       public Task PushAsync(IMetric metric)
       {
-         Metrics.Add(metric);
+         _metrics.Enqueue(metric);
 
          return Task.CompletedTask;
       }

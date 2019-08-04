@@ -4,10 +4,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "package", "package", "{174962E8-07BC-43F0-8ACC-30DD544AD1BD}"
+ProjectSection(SolutionItems) = preProject
+	package\NuGet.config = package\NuGet.config
+EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stackage.Core", "package\Stackage.Core\Stackage.Core.csproj", "{D5368C38-097B-492B-8860-B145A1C9F6A9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stackage.Core.Tests", "package\Stackage.Core.Tests\Stackage.Core.Tests.csproj", "{FD94F937-775A-48A1-8608-91D0F0BAE23C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E1E9CE0E-5635-4278-A3DF-1C5A6933DDD1}"
+ProjectSection(SolutionItems) = preProject
+	.editorconfig = .editorconfig
+	.gitignore = .gitignore
+	pipelines\azure-pipelines.ci.yaml = pipelines\azure-pipelines.ci.yaml
+	pipelines\azure-pipelines.pr.yaml = pipelines\azure-pipelines.pr.yaml
+	pipelines\azure-pipelines.release.yaml = pipelines\azure-pipelines.release.yaml
+	pipelines\azure-pipelines.steps.yaml = pipelines\azure-pipelines.steps.yaml
+EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

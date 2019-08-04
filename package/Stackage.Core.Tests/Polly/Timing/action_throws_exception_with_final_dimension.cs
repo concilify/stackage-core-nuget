@@ -2,29 +2,36 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Polly;
 using Stackage.Core.Abstractions.Metrics;
-using Stackage.Core.Metrics;
+using Stackage.Core.Polly;
 
-namespace Stackage.Core.Tests.Metrics.TimingMetricsScenarios
+namespace Stackage.Core.Tests.Polly.Timing
 {
-   public class action_throws_exception
+   public class action_throws_exception_with_final_dimension
    {
       private Exception _exceptionToThrow;
       private Exception _exceptionThrown;
       private StubMetricSink _metricSink;
 
       [OneTimeSetUp]
-      public async Task setup_once_before_all_tests()
+      public async Task setup_scenario()
       {
+         Task OnExceptionAsync(Context context, Exception exception)
+         {
+            context.Add("final-key", exception.GetType().FullName);
+            return Task.CompletedTask;
+         }
+
          _exceptionToThrow = new Exception();
          _metricSink = new StubMetricSink();
 
-         var timingBlockFactory = new TimingBlockFactory(_metricSink);
-         var timingBlock = timingBlockFactory.Create("bar");
+         var policyFactory = new PolicyFactory();
+         var timingPolicy = policyFactory.CreateAsyncTimingPolicy("bar", _metricSink, onExceptionAsync: OnExceptionAsync);
 
          try
          {
-            await timingBlock.ExecuteAsync(async () =>
+            await timingPolicy.ExecuteAsync(async () =>
             {
                await Task.Delay(50);
 
@@ -55,6 +62,7 @@ namespace Stackage.Core.Tests.Metrics.TimingMetricsScenarios
          var metric = (Counter) _metricSink.Metrics.First();
 
          Assert.That(metric.Name, Is.EqualTo("bar_start"));
+         Assert.That(metric.Dimensions.Count, Is.EqualTo(0));
       }
 
       [Test]
@@ -64,7 +72,7 @@ namespace Stackage.Core.Tests.Metrics.TimingMetricsScenarios
 
          Assert.That(metric.Name, Is.EqualTo("bar_end"));
          Assert.That(metric.Value, Is.InRange(25, 100));
-         Assert.That(metric.Dimensions.Keys, Is.EquivalentTo(new[] {"exception"}));
+         Assert.That(metric.Dimensions.Keys, Is.EquivalentTo(new[] {"final-key"}));
          Assert.That(metric.Dimensions.Values, Is.EquivalentTo(new[] {"System.Exception"}));
       }
    }

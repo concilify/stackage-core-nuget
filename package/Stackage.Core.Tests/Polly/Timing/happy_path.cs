@@ -2,27 +2,23 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Stackage.Core.Abstractions.Metrics;
-using Stackage.Core.Metrics;
+using Stackage.Core.Polly;
 
-namespace Stackage.Core.Tests.Metrics.TimingMetricsScenarios
+namespace Stackage.Core.Tests.Polly.Timing
 {
-   public class happy_path_with_intermediate_dimensions
+   public class happy_path
    {
       private StubMetricSink _metricSink;
 
       [OneTimeSetUp]
-      public async Task setup_once_before_all_tests()
+      public async Task setup_scenario()
       {
          _metricSink = new StubMetricSink();
 
-         var timingBlockFactory = new TimingBlockFactory(_metricSink);
-         var timingBlock = timingBlockFactory.Create("foo");
+         var policyFactory = new PolicyFactory();
+         var timingPolicy = policyFactory.CreateAsyncTimingPolicy("foo", _metricSink);
 
-         await timingBlock.ExecuteAsync(() =>
-         {
-            timingBlock.Dimensions.Add("end-only", "some-value");
-            return Task.Delay(100);
-         });
+         await timingPolicy.ExecuteAsync(() => Task.Delay(100));
       }
 
       [Test]
@@ -37,8 +33,6 @@ namespace Stackage.Core.Tests.Metrics.TimingMetricsScenarios
          var metric = (Counter) _metricSink.Metrics.First();
 
          Assert.That(metric.Name, Is.EqualTo("foo_start"));
-         Assert.That(metric.Dimensions.Keys, Is.Empty);
-         Assert.That(metric.Dimensions.Values, Is.Empty);
       }
 
       [Test]
@@ -48,8 +42,6 @@ namespace Stackage.Core.Tests.Metrics.TimingMetricsScenarios
 
          Assert.That(metric.Name, Is.EqualTo("foo_end"));
          Assert.That(metric.Value, Is.InRange(50, 200));
-         Assert.That(metric.Dimensions.Keys, Is.EquivalentTo(new[] {"end-only"}));
-         Assert.That(metric.Dimensions.Values, Is.EquivalentTo(new[] {"some-value"}));
       }
    }
 }

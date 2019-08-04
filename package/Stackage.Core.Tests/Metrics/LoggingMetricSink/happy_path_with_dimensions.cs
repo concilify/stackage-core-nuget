@@ -3,20 +3,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Stackage.Core.Abstractions.Metrics;
-using Stackage.Core.Metrics;
 
-namespace Stackage.Core.Tests.Metrics.SimpleMetricScenarios
+namespace Stackage.Core.Tests.Metrics.LoggingMetricSink
 {
    public class happy_path_with_dimensions
    {
-      private StubLogger<LoggingMetricSink> _logger;
+      private StubLogger<Core.Metrics.LoggingMetricSink> _logger;
 
       [OneTimeSetUp]
       public async Task setup_once_before_all_tests()
       {
-         _logger = new StubLogger<LoggingMetricSink>();
+         _logger = new StubLogger<Core.Metrics.LoggingMetricSink>();
 
-         var loggingMetricSink = new LoggingMetricSink(_logger);
+         var loggingMetricSink = new Core.Metrics.LoggingMetricSink(_logger);
 
          var metric = new Counter {Name = "foo", Dimensions = new Dictionary<string, object> {{"a", 1}, {"b", 2}}};
          await loggingMetricSink.PushAsync(metric);
