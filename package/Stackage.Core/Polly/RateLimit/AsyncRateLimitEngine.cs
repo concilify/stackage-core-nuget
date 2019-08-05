@@ -24,7 +24,7 @@ namespace Stackage.Core.Polly.RateLimit
          }
          catch (RateLimitRejectionException e)
          {
-            await For.OptionalInvokeAsync(onRejectionAsync, context, e).ConfigureAwait(continueOnCapturedContext);
+            await Invoke.NullableAsync(onRejectionAsync, context, e).ConfigureAwait(continueOnCapturedContext);
 
             throw;
          }

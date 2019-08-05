@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -19,9 +20,9 @@ namespace Stackage.Core.Middleware
          IPolicyFactory policyFactory,
          IMetricSink metricSink)
       {
-         _next = next;
-         _policyFactory = policyFactory;
-         _metricSink = metricSink;
+         _next = next ?? throw new ArgumentNullException(nameof(next));
+         _policyFactory = policyFactory ?? throw new ArgumentNullException(nameof(policyFactory));
+         _metricSink = metricSink ?? throw new ArgumentNullException(nameof(metricSink));
       }
 
       public async Task Invoke(HttpContext context)

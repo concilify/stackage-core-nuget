@@ -36,7 +36,7 @@ namespace Stackage.Core.Polly.Timing
          CancellationToken cancellationToken,
          bool continueOnCapturedContext)
       {
-         async Task OnSuccessAsync(Context c, TResult _) => await For.OptionalInvokeAsync(_onSuccessAsync, c);
+         async Task OnSuccessAsync(Context c, TResult _) => await Invoke.NullableAsync(_onSuccessAsync, c);
 
          return AsyncTimingEngine.ImplementationAsync(action, context, cancellationToken, _name, _metricSink, _policyDimensions, OnSuccessAsync,
             _onExceptionAsync, continueOnCapturedContext);

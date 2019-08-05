@@ -87,6 +87,12 @@ namespace Stackage.Core.Tests.DefaultMiddleware
       }
 
       [Test]
+      public void should_return_content_type_json()
+      {
+         _barResponse.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+      }
+
+      [Test]
       public void should_not_log_a_message()
       {
          Logger.Entries.Count.ShouldBe(0);

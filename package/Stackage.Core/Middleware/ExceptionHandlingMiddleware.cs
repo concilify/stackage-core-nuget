@@ -20,9 +20,9 @@ namespace Stackage.Core.Middleware
          IGuidGenerator guidGenerator,
          ILogger<ExceptionHandlingMiddleware> logger)
       {
-         _next = next;
-         _guidGenerator = guidGenerator;
-         _logger = logger;
+         _next = next ?? throw new ArgumentNullException(nameof(next));
+         _guidGenerator = guidGenerator ?? throw new ArgumentNullException(nameof(guidGenerator));
+         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
       }
 
       public async Task Invoke(HttpContext context)

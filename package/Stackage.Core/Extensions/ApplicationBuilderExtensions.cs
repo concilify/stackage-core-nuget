@@ -13,7 +13,8 @@ namespace Stackage.Core.Extensions
          return app
             .UseMiddleware<TimingMiddleware>()
             .UseMiddleware<RateLimitingMiddleware>()
-            .UseMiddleware<ExceptionHandlingMiddleware>();
+            .UseMiddleware<ExceptionHandlingMiddleware>()
+            .UseMiddleware<PingMiddleware>();
       }
    }
 }

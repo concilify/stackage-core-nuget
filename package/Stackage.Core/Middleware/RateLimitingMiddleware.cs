@@ -22,7 +22,10 @@ namespace Stackage.Core.Middleware
          IPolicyFactory policyFactory,
          IConfiguration configuration)
       {
-         _next = next;
+         if (policyFactory == null) throw new ArgumentNullException(nameof(policyFactory));
+         if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+
+         _next = next ?? throw new ArgumentNullException(nameof(next));
 
          if (configuration.GetSection("RATELIMITING").Exists())
          {

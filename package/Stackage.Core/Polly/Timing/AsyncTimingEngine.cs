@@ -36,14 +36,14 @@ namespace Stackage.Core.Polly.Timing
             var result = await action(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
 
             stopwatch.Stop();
-            await For.OptionalInvokeAsync(onSuccessAsync, context, result);
+            await Invoke.NullableAsync(onSuccessAsync, context, result);
 
             return result;
          }
          catch (Exception e)
          {
             stopwatch.Stop();
-            await For.OptionalInvokeAsync(onExceptionAsync, context, e);
+            await Invoke.NullableAsync(onExceptionAsync, context, e);
 
             throw;
          }

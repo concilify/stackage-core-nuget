@@ -1,17 +1,15 @@
-using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using NUnit.Framework;
 using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
 
-namespace Stackage.Core.Tests.DefaultMiddleware
+namespace Stackage.Core.Tests.DefaultMiddleware.Ping
 {
-   public class client_cancels_request : middleware_scenario
+   public class ping_request : middleware_scenario
    {
       private HttpResponseMessage _response;
       private string _content;
@@ -19,35 +17,26 @@ namespace Stackage.Core.Tests.DefaultMiddleware
       [OneTimeSetUp]
       public async Task setup_scenario()
       {
-         var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(50));
-
-         _response = await TestService.GetAsync("/get", cancellationToken: cts.Token);
+         _response = await TestService.GetAsync("/ping");
          _content = await _response.Content.ReadAsStringAsync();
       }
 
-      protected override void Configure(IApplicationBuilder app)
+      [Test]
+      public void should_return_status_code_200()
       {
-         base.Configure(app);
-
-         app.UseMiddleware<StubResponseMiddleware>(new StubResponseOptions {Latency = TimeSpan.FromSeconds(10)});
+         _response.StatusCode.ShouldBe(HttpStatusCode.OK);
       }
 
       [Test]
-      public void should_return_status_code_499()
+      public void should_return_content()
       {
-         _response.StatusCode.ShouldBe((HttpStatusCode) 499);
+         _content.ShouldBe("Healthy");
       }
 
       [Test]
-      public void should_return_json_content_with_token()
+      public void should_return_content_type_text()
       {
-         _content.ShouldBe("{\"message\":\"Client Closed Request\"}");
-      }
-
-      [Test]
-      public void should_return_content_type_json()
-      {
-         _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+         _response.Content.Headers.ContentType.MediaType.ShouldBe("text/plain");
       }
 
       [Test]
@@ -69,7 +58,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware
 
          Assert.That(metric.Name, Is.EqualTo("http_request_start"));
          Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
-         Assert.That(metric.Dimensions["path"], Is.EqualTo("/get"));
+         Assert.That(metric.Dimensions["path"], Is.EqualTo("/ping"));
       }
 
       [Test]
@@ -80,8 +69,8 @@ namespace Stackage.Core.Tests.DefaultMiddleware
          Assert.That(metric.Name, Is.EqualTo("http_request_end"));
          Assert.That(metric.Value, Is.GreaterThanOrEqualTo(0));
          Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
-         Assert.That(metric.Dimensions["path"], Is.EqualTo("/get"));
-         Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(499));
+         Assert.That(metric.Dimensions["path"], Is.EqualTo("/ping"));
+         Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(200));
       }
    }
 }
