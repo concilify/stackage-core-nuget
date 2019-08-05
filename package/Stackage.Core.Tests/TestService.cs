@@ -7,19 +7,26 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Stackage.Core.Tests
 {
    public class TestService
    {
+      private readonly Action<IWebHostBuilder> _configureWebHostBuilder;
+      private readonly Action<IConfigurationBuilder> _configureConfiguration;
       private readonly Action<IServiceCollection> _configureServices;
       private readonly Action<IApplicationBuilder> _configure;
 
       public TestService(
+         Action<IWebHostBuilder> configureWebHostBuilder,
+         Action<IConfigurationBuilder> configureConfiguration,
          Action<IServiceCollection> configureServices,
          Action<IApplicationBuilder> configure)
       {
+         _configureWebHostBuilder = configureWebHostBuilder;
+         _configureConfiguration = configureConfiguration;
          _configureServices = configureServices;
          _configure = configure;
       }
@@ -93,7 +100,12 @@ namespace Stackage.Core.Tests
 
       public TestServer CreateServer()
       {
-         var builder = new WebHostBuilder()
+         var builder = new WebHostBuilder();
+
+         _configureWebHostBuilder(builder);
+
+         builder
+            .ConfigureAppConfiguration(_configureConfiguration)
             .ConfigureServices(_configureServices)
             .Configure(_configure);
 

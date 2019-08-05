@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Stackage.Core.Tests.DefaultMiddleware
+namespace Stackage.Core.Tests.DefaultMiddleware.RateLimiting
 {
    public class multiple_requests_with_rate_limiting : middleware_scenario
    {

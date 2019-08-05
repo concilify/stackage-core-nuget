@@ -11,7 +11,7 @@ using NUnit.Framework;
 using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
 
-namespace Stackage.Core.Tests.DefaultMiddleware
+namespace Stackage.Core.Tests.DefaultMiddleware.RateLimiting
 {
    public class rate_limited_reqeust : middleware_scenario
    {

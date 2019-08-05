@@ -1,5 +1,7 @@
 using FakeItEasy;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
@@ -24,12 +26,21 @@ namespace Stackage.Core.Tests.DefaultMiddleware
          MetricSink = new StubMetricSink();
          Logger = new StubLogger<ExceptionHandlingMiddleware>();
 
-         TestService = new TestService(configureServices: ConfigureServices, configure: Configure);
+         TestService = new TestService(ConfigureWebHostBuilder, ConfigureConfiguration, ConfigureServices, Configure);
+      }
+
+      protected virtual void ConfigureWebHostBuilder(IWebHostBuilder webHostBuilder)
+      {
+      }
+
+      protected virtual void ConfigureConfiguration(IConfigurationBuilder configurationBuilder)
+      {
       }
 
       protected virtual void ConfigureServices(IServiceCollection services)
       {
          services.AddDefaultServices();
+
          services.AddSingleton(GuidGenerator);
          services.AddSingleton<IMetricSink>(MetricSink);
          services.AddSingleton<ILogger<ExceptionHandlingMiddleware>>(Logger);
@@ -37,7 +48,9 @@ namespace Stackage.Core.Tests.DefaultMiddleware
 
       protected virtual void Configure(IApplicationBuilder app)
       {
-         app.UseDefaultMiddleware();
+         var hostingEnvironment = app.ApplicationServices.GetRequiredService<IHostingEnvironment>();
+
+         app.UseDefaultMiddleware(hostingEnvironment);
       }
    }
 }

@@ -11,7 +11,7 @@ using NUnit.Framework;
 using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
 
-namespace Stackage.Core.Tests.DefaultMiddleware
+namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
 {
    public class action_throws_exception : middleware_scenario
    {

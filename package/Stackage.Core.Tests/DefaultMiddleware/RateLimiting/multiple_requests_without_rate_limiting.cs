@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Stackage.Core.Tests.DefaultMiddleware
+namespace Stackage.Core.Tests.DefaultMiddleware.RateLimiting
 {
    public class multiple_requests_without_rate_limiting : middleware_scenario
    {
