@@ -16,12 +16,12 @@ namespace Stackage.Core.Extensions
          await response.WriteAsync(content, Encoding.UTF8);
       }
 
-      public static async Task WriteJsonAsync(this HttpResponse response, HttpStatusCode statusCode, object content)
+      public static async Task WriteJsonAsync(this HttpResponse response, HttpStatusCode statusCode, object content, JsonSerializerSettings settings = null)
       {
          response.StatusCode = (int) statusCode;
          response.ContentType = "application/json";
 
-         await response.WriteAsync(JsonConvert.SerializeObject(content), Encoding.UTF8);
+         await response.WriteAsync(JsonConvert.SerializeObject(content, settings), Encoding.UTF8);
       }
    }
 }

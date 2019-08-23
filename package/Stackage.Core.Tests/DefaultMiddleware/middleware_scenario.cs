@@ -15,6 +15,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware
    public abstract class middleware_scenario
    {
       protected IGuidGenerator GuidGenerator { get; private set; }
+      protected IServiceInfo ServiceInfo { get; private set; }
       protected StubMetricSink MetricSink { get; private set; }
       protected StubLogger<ExceptionHandlingMiddleware> Logger { get; private set; }
       protected TestService TestService { get; private set; }
@@ -22,11 +23,20 @@ namespace Stackage.Core.Tests.DefaultMiddleware
       [OneTimeSetUp]
       public void setup_scenario_base()
       {
+         ConfigureDependencies();
+         TestService = new TestService(ConfigureWebHostBuilder, ConfigureConfiguration, ConfigureServices, Configure);
+      }
+
+      protected virtual void ConfigureDependencies()
+      {
          GuidGenerator = A.Fake<IGuidGenerator>();
+         ServiceInfo = A.Fake<IServiceInfo>();
          MetricSink = new StubMetricSink();
          Logger = new StubLogger<ExceptionHandlingMiddleware>();
 
-         TestService = new TestService(ConfigureWebHostBuilder, ConfigureConfiguration, ConfigureServices, Configure);
+         A.CallTo(() => ServiceInfo.Service).Returns("service");
+         A.CallTo(() => ServiceInfo.Version).Returns("version");
+         A.CallTo(() => ServiceInfo.Host).Returns("host");
       }
 
       protected virtual void ConfigureWebHostBuilder(IWebHostBuilder webHostBuilder)
@@ -42,6 +52,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware
          services.AddDefaultServices();
 
          services.AddSingleton(GuidGenerator);
+         services.AddSingleton(ServiceInfo);
          services.AddSingleton<IMetricSink>(MetricSink);
          services.AddSingleton<ILogger<ExceptionHandlingMiddleware>>(Logger);
       }
