@@ -34,6 +34,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware
          MetricSink = new StubMetricSink();
          Logger = new StubLogger<ExceptionHandlingMiddleware>();
 
+         A.CallTo(() => GuidGenerator.Generate()).Returns("not-a-guid");
          A.CallTo(() => ServiceInfo.Service).Returns("service");
          A.CallTo(() => ServiceInfo.Version).Returns("version");
          A.CallTo(() => ServiceInfo.Host).Returns("host");

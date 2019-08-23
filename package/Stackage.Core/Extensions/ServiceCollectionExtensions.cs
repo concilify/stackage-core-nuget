@@ -2,6 +2,7 @@ using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 using Stackage.Core.Abstractions;
 using Stackage.Core.Abstractions.Metrics;
 using Stackage.Core.Abstractions.Polly;
@@ -36,6 +37,35 @@ namespace Stackage.Core.Extensions
          var registration = new HealthCheckRegistration(name, healthCheck, null, null);
 
          services.Configure<HealthCheckServiceOptions>(options => options.Registrations.Add(registration));
+
+         return services;
+      }
+
+      public static IServiceCollection AddHealthCheck(this IServiceCollection services, string name, Func<IServiceProvider, IHealthCheck> healthCheckFactory)
+      {
+         services.AddOptions();
+         services.AddSingleton<IConfigureOptions<HealthCheckServiceOptions>>(sp =>
+         {
+            var healthCheck = healthCheckFactory(sp);
+            var registration = new HealthCheckRegistration(name, healthCheck, null, null);
+
+            return new ConfigureNamedOptions<HealthCheckServiceOptions>(Options.DefaultName, options => options.Registrations.Add(registration));
+         });
+
+         return services;
+      }
+
+      public static IServiceCollection AddHealthCheck<THealthCheck>(this IServiceCollection services, string name)
+         where THealthCheck : IHealthCheck
+      {
+         services.AddOptions();
+         services.AddSingleton<IConfigureOptions<HealthCheckServiceOptions>>(sp =>
+         {
+            var healthCheck = (IHealthCheck)ActivatorUtilities.CreateInstance(sp, typeof(THealthCheck));
+            var registration = new HealthCheckRegistration(name, healthCheck, null, null);
+
+            return new ConfigureNamedOptions<HealthCheckServiceOptions>(Options.DefaultName, options => options.Registrations.Add(registration));
+         });
 
          return services;
       }
