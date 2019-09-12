@@ -29,11 +29,14 @@ namespace Stackage.Core.Health
          using (var scope = _scopeFactory.CreateScope())
          {
             var registrations = _options.Value.Registrations;
-            var context = new HealthCheckContext();
             var stopwatch = Stopwatch.StartNew();
 
             var heathChecks = registrations
-               .Select(c => new {c.Name, HealthReportEntry = CheckHealthAsync(c.Factory, scope.ServiceProvider, context, stopwatch)})
+               .Select(registration => new
+               {
+                  registration.Name,
+                  HealthReportEntry = CheckHealthAsync(registration.Factory, scope.ServiceProvider, registration, stopwatch)
+               })
                .ToArray();
 
             await Task.WhenAll(heathChecks.Select(c => c.HealthReportEntry));
@@ -43,10 +46,14 @@ namespace Stackage.Core.Health
          }
       }
 
-      private static async Task<HealthReportEntry> CheckHealthAsync(Func<IServiceProvider, IHealthCheck> healthCheckFactory, IServiceProvider serviceProvider,
-         HealthCheckContext context, Stopwatch stopwatch)
+      private static async Task<HealthReportEntry> CheckHealthAsync(
+         Func<IServiceProvider, IHealthCheck> healthCheckFactory,
+         IServiceProvider serviceProvider,
+         HealthCheckRegistration registration,
+         Stopwatch stopwatch)
       {
          var healthCheck = healthCheckFactory(serviceProvider);
+         var context = new HealthCheckContext {Registration = registration};
 
          var result = await healthCheck.CheckHealthAsync(context, CancellationToken.None);
 

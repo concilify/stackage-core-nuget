@@ -32,9 +32,9 @@ namespace Stackage.Core.Extensions
          return services;
       }
 
-      public static IServiceCollection AddHealthCheck(this IServiceCollection services, string name, IHealthCheck healthCheck)
+      public static IServiceCollection AddHealthCheck(this IServiceCollection services, string name, IHealthCheck healthCheck, HealthStatus? failureStatus = null)
       {
-         var registration = new HealthCheckRegistration(name, healthCheck, null, null);
+         var registration = new HealthCheckRegistration(name, healthCheck, failureStatus, null);
 
          services.Configure<HealthCheckServiceOptions>(options => options.Registrations.Add(registration));
 

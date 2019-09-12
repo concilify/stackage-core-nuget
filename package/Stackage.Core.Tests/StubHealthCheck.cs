@@ -11,8 +11,12 @@ namespace Stackage.Core.Tests
 
       public HealthCheckResult CheckHealthResponse { get; set; }
 
+      public HealthStatus LastFailureStatus { get; private set; }
+      
       public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
       {
+         LastFailureStatus = context.Registration.FailureStatus;
+         
          if (Latency != null)
          {
             await Task.Delay(Latency.Value, cancellationToken);

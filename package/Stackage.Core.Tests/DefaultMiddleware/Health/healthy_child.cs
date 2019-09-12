@@ -17,6 +17,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
    {
       private HttpResponseMessage _response;
       private string _content;
+      private StubHealthCheck _healthCheck;
 
       [OneTimeSetUp]
       public async Task setup_scenario()
@@ -29,7 +30,9 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
       {
          base.ConfigureServices(services);
 
-         services.AddHealthCheck("critical-healthy", new StubHealthCheck {CheckHealthResponse = new HealthCheckResult(HealthStatus.Healthy)});
+         _healthCheck = new StubHealthCheck {CheckHealthResponse = new HealthCheckResult(HealthStatus.Healthy)};
+
+         services.AddHealthCheck("healthy", _healthCheck, HealthStatus.Degraded);
       }
 
       [Test]
@@ -50,13 +53,19 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
             {
                new JObject
                {
-                  ["name"] = "critical-healthy",
+                  ["name"] = "healthy",
                   ["status"] = "Healthy"
                }
             }
          };
 
          response.Should().ContainSubtree(expectedResponse);
+      }
+
+      [Test]
+      public void should_make_registration_failure_status_available()
+      {
+         Assert.That(_healthCheck.LastFailureStatus, Is.EqualTo(HealthStatus.Degraded));
       }
 
       [Test]
