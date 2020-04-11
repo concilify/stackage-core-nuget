@@ -32,7 +32,7 @@ namespace Stackage.Core.Tests
       }
 
       public async Task<HttpResponseMessage> GetAsync(string uri, IDictionary<string, string> headers = null,
-         CancellationToken cancellationToken = default(CancellationToken))
+         CancellationToken cancellationToken = default)
       {
          using (var fakeServer = CreateServer())
          {
@@ -41,7 +41,7 @@ namespace Stackage.Core.Tests
       }
 
       public async Task<HttpResponseMessage> GetAsync(TestServer server, string uri, IDictionary<string, string> headers = null,
-         CancellationToken cancellationToken = default(CancellationToken))
+         CancellationToken cancellationToken = default)
       {
          using (var httpClient = server.CreateClient())
          {

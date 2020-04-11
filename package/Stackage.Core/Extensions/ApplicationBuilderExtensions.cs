@@ -1,8 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.Extensions.Hosting;
 using Stackage.Core.Middleware;
 
 namespace Stackage.Core.Extensions
@@ -19,7 +18,7 @@ namespace Stackage.Core.Extensions
          );
       }
 
-      public static IApplicationBuilder UseDefaultMiddleware(this IApplicationBuilder app, IHostingEnvironment environment)
+      public static IApplicationBuilder UseDefaultMiddleware(this IApplicationBuilder app, IHostEnvironment environment)
       {
          if (app == null) throw new ArgumentNullException(nameof(app));
 
