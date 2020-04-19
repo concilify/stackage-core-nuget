@@ -1,13 +1,9 @@
 name: 0.0.$(System.PullRequest.PullRequestId)-pr-$(Rev:rr)
 
-trigger:
-  batch: false
-  branches:
-    exclude:
-    - master
+trigger: none
 
 pool:
-  vmImage: 'Ubuntu-16.04'
+  vmImage: 'Ubuntu-18.04'
 
 steps:
 - template: azure-pipelines.steps.yaml
