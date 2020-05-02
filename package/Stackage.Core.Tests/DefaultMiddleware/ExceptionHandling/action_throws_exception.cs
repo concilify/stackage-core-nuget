@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FakeItEasy;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
@@ -26,9 +27,9 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
          _content = await _response.Content.ReadAsStringAsync();
       }
 
-      protected override void ConfigureServices(IServiceCollection services)
+      protected override void ConfigureServices(IServiceCollection services, IConfiguration configuration)
       {
-         base.ConfigureServices(services);
+         base.ConfigureServices(services, configuration);
 
          A.CallTo(() => GuidGenerator.Generate()).ReturnsNextFromSequence("abc123def456");
       }

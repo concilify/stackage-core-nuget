@@ -1,16 +1,18 @@
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
 
-namespace Stackage.Core.Tests.DefaultMiddleware.Security
+namespace Stackage.Core.Tests.DefaultMiddleware.Security.BehindProxyTrue
 {
-   public class http_request_dev : middleware_scenario
+   public class https_request_prod : middleware_scenario
    {
       private HttpResponseMessage _response;
       private string _content;
@@ -18,7 +20,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Security
       [OneTimeSetUp]
       public async Task setup_scenario()
       {
-         _response = await TestService.GetAsync("http://localhost:5000/get");
+         _response = await TestService.GetAsync("https://localhost:5001/get");
          _content = await _response.Content.ReadAsStringAsync();
       }
 
@@ -26,14 +28,23 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Security
       {
          base.ConfigureWebHostBuilder(webHostBuilder);
 
-         webHostBuilder.UseSetting("environment", "Development");
          webHostBuilder.UseSetting("https_port", "5001");
          webHostBuilder.UseSetting("urls", "http://localhost:5000;https://localhost:5001");
       }
 
-      protected override void ConfigureServices(IServiceCollection services)
+      protected override void ConfigureConfiguration(IConfigurationBuilder configurationBuilder)
       {
-         base.ConfigureServices(services);
+         base.ConfigureConfiguration(configurationBuilder);
+
+         configurationBuilder.AddInMemoryCollection(new Dictionary<string, string>
+         {
+            {"RUNNINGBEHINDPROXY", "true"}
+         });
+      }
+
+      protected override void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+      {
+         base.ConfigureServices(services, configuration);
 
          services.Configure<HstsOptions>(options => { options.ExcludedHosts.Remove("localhost"); });
       }

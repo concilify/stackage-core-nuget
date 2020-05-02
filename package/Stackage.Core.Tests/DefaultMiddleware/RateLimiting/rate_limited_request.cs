@@ -6,14 +6,13 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
 
 namespace Stackage.Core.Tests.DefaultMiddleware.RateLimiting
 {
-   public class rate_limited_reqeust : middleware_scenario
+   public class rate_limited_request : middleware_scenario
    {
       private HttpResponseMessage _fooResponse;
       private HttpResponseMessage _barResponse;
@@ -39,20 +38,18 @@ namespace Stackage.Core.Tests.DefaultMiddleware.RateLimiting
          }
       }
 
-      protected override void ConfigureServices(IServiceCollection services)
+      protected override void ConfigureConfiguration(IConfigurationBuilder configurationBuilder)
       {
-         base.ConfigureServices(services);
+         base.ConfigureConfiguration(configurationBuilder);
 
-         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string>
-            {
-               {"RATELIMITING:REQUESTSPERPERIOD", "1"},
-               {"RATELIMITING:PERIODSECONDS", "1"},
-               {"RATELIMITING:BURSTSIZE", "1"},
-               {"RATELIMITING:MAXWAITMS", "10"}
-            }).Build();
-
-         services.AddSingleton<IConfiguration>(configuration);
+         configurationBuilder.AddInMemoryCollection(new Dictionary<string, string>
+         {
+            {"RATELIMITING:ENABLED", "true"},
+            {"RATELIMITING:REQUESTSPERPERIOD", "1"},
+            {"RATELIMITING:PERIODSECONDS", "1"},
+            {"RATELIMITING:BURSTSIZE", "1"},
+            {"RATELIMITING:MAXWAITMS", "10"}
+         });
       }
 
       protected override void Configure(IApplicationBuilder app)

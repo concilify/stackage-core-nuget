@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
 using FluentAssertions.Json;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Linq;
@@ -28,9 +29,9 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
          _content = await _response.Content.ReadAsStringAsync();
       }
 
-      protected override void ConfigureServices(IServiceCollection services)
+      protected override void ConfigureServices(IServiceCollection services, IConfiguration configuration)
       {
-         base.ConfigureServices(services);
+         base.ConfigureServices(services, configuration);
 
          var response = A.Fake<IHealthCheckResponse>();
          A.CallTo(() => response.Value).Returns(new HealthCheckResult(HealthStatus.Degraded));

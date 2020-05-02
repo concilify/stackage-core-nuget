@@ -49,9 +49,9 @@ namespace Stackage.Core.Tests.DefaultMiddleware
       {
       }
 
-      protected virtual void ConfigureServices(IServiceCollection services)
+      protected virtual void ConfigureServices(IServiceCollection services, IConfiguration configuration)
       {
-         services.AddDefaultServices();
+         services.AddDefaultServices(configuration);
 
          services.AddSingleton(GuidGenerator);
          services.AddSingleton(ServiceInfo);

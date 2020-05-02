@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Security.Authentication;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -34,6 +35,10 @@ namespace Stackage.Core.Middleware
          catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
          {
             await context.Response.WriteJsonAsync((HttpStatusCode) 499, new {message = "Client Closed Request"});
+         }
+         catch (AuthenticationException)
+         {
+            await context.Response.WriteJsonAsync(HttpStatusCode.Unauthorized, new {message = "Unauthorized"});
          }
          catch (Exception e)
          {

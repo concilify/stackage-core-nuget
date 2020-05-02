@@ -1,5 +1,7 @@
 using System;
 using System.Net;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Stackage.Core.Tests
 {
@@ -14,6 +16,8 @@ namespace Stackage.Core.Tests
          StatusCode = statusCode;
          Content = content;
       }
+
+      public Func<HttpContext, Task> Handler { get; set; }
 
       public HttpStatusCode? StatusCode { get; set; }
 

@@ -18,6 +18,11 @@ namespace Stackage.Core.Tests
 
       public async Task Invoke(HttpContext context)
       {
+         if (_options.Handler != null)
+         {
+            await _options.Handler(context);
+         }
+
          if (_options.Latency != null)
          {
             await Task.Delay(_options.Latency.Value, context.RequestAborted);

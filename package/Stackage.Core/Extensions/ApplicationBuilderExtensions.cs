@@ -1,8 +1,11 @@
 using System;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Stackage.Core.Middleware;
+using Stackage.Core.Middleware.Options;
 
 namespace Stackage.Core.Extensions
 {
@@ -21,12 +24,21 @@ namespace Stackage.Core.Extensions
       public static IApplicationBuilder UseDefaultMiddleware(this IApplicationBuilder app, IHostEnvironment environment)
       {
          if (app == null) throw new ArgumentNullException(nameof(app));
+         if (environment == null) throw new ArgumentNullException(nameof(environment));
 
-         if (!environment.IsDevelopment())
+         app.UseMiddleware<BasePathRewritingMiddleware>();
+
+         var options = app.ApplicationServices.GetRequiredService<IOptions<DefaultMiddlewareOptions>>().Value;
+
+         if (options.RunningBehindProxy)
+         {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions {ForwardedHeaders = ForwardedHeaders.All});
+         }
+         else if (!environment.IsDevelopment())
          {
             app = app
-               .UseMiddleware<HttpsRedirectionMiddleware>()
-               .UseMiddleware<HstsMiddleware>();
+               .UseHttpsRedirection()
+               .UseHsts();
          }
 
          return app
@@ -34,7 +46,7 @@ namespace Stackage.Core.Extensions
             .UseMiddleware<RateLimitingMiddleware>()
             .UseMiddleware<ExceptionHandlingMiddleware>()
             .UseMiddleware<PingMiddleware>()
-            .UseMiddleware<HealthMiddleware>("/health");
+            .UseMiddleware<HealthMiddleware>();
       }
    }
 }

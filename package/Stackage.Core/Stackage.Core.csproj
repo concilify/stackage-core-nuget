@@ -18,7 +18,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Stackage.Core.Abstractions" Version="1.0.0-preview007" />
+    <PackageReference Include="Microsoft.AspNetCore.HttpOverrides" Version="2.2.0" />
+    <PackageReference Include="Stackage.Core.Abstractions" Version="1.0.0-preview009" />
   </ItemGroup>
 
   <ItemGroup>

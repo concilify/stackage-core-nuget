@@ -2,11 +2,12 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Polly;
 using Stackage.Core.Abstractions.Polly;
 using Stackage.Core.Abstractions.Polly.RateLimit;
 using Stackage.Core.Extensions;
+using Stackage.Core.Middleware.Options;
 using Stackage.Core.Polly.RateLimit;
 
 namespace Stackage.Core.Middleware
@@ -15,52 +16,46 @@ namespace Stackage.Core.Middleware
    public class RateLimitingMiddleware
    {
       private readonly RequestDelegate _next;
-      private readonly Func<HttpContext, Task> _implementation;
+      private readonly Func<HttpContext, Task> _invokeDelegateAsync;
 
       public RateLimitingMiddleware(
          RequestDelegate next,
-         IPolicyFactory policyFactory,
-         IConfiguration configuration)
+         IOptions<RateLimitingOptions> options,
+         IPolicyFactory policyFactory)
       {
+         if (options == null) throw new ArgumentNullException(nameof(options));
          if (policyFactory == null) throw new ArgumentNullException(nameof(policyFactory));
-         if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
          _next = next ?? throw new ArgumentNullException(nameof(next));
 
-         if (configuration.GetSection("RATELIMITING").Exists())
+         var rateLimitingOptions = options.Value;
+
+         if (rateLimitingOptions.Enabled)
          {
-            var rateLimiter = CreateRateLimiter(configuration);
+            var rateLimiter = CreateRateLimiter(rateLimitingOptions);
             var rateLimitPolicy = policyFactory.CreateAsyncRateLimitPolicy(rateLimiter);
 
-            _implementation = (context) => InvokeWithRateLimiting(context, rateLimitPolicy);
+            _invokeDelegateAsync = (context) => InvokeWithRateLimiting(context, rateLimitPolicy);
          }
          else
          {
-            _implementation = InvokeWithoutRateLimiting;
+            _invokeDelegateAsync = (context) => _next(context);
          }
       }
 
-      private static RateLimiter CreateRateLimiter(IConfiguration configuration)
+      private static RateLimiter CreateRateLimiter(RateLimitingOptions options)
       {
-         var rlc = new RateLimitConfiguration();
-         configuration.Bind("RATELIMITING", rlc);
-
          var rateLimiter = new RateLimiter(
-            rlc.RequestsPerPeriod,
-            TimeSpan.FromSeconds(rlc.PeriodSeconds),
-            rlc.BurstSize,
-            TimeSpan.FromMilliseconds(rlc.MaxWaitMs));
+            options.RequestsPerPeriod,
+            TimeSpan.FromSeconds(options.PeriodSeconds),
+            options.BurstSize,
+            TimeSpan.FromMilliseconds(options.MaxWaitMs));
          return rateLimiter;
       }
 
       public async Task Invoke(HttpContext context)
       {
-         await _implementation(context);
-      }
-
-      private async Task InvokeWithoutRateLimiting(HttpContext context)
-      {
-         await _next(context);
+         await _invokeDelegateAsync(context);
       }
 
       private async Task InvokeWithRateLimiting(HttpContext context, IAsyncPolicy rateLimitPolicy)
@@ -73,14 +68,6 @@ namespace Stackage.Core.Middleware
          {
             await context.Response.WriteJsonAsync((HttpStatusCode) 429, new {message = "Too Many Requests"});
          }
-      }
-
-      private class RateLimitConfiguration
-      {
-         public int RequestsPerPeriod { get; set; }
-         public double PeriodSeconds { get; set; }
-         public int BurstSize { get; set; }
-         public int MaxWaitMs { get; set; } = 3000;
       }
    }
 }

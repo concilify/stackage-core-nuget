@@ -1,14 +1,16 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using Shouldly;
 
 namespace Stackage.Core.Tests.DefaultMiddleware.RateLimiting
 {
-   public class multiple_requests_without_rate_limiting : middleware_scenario
+   public class multiple_requests_with_rate_limiting_disabled : middleware_scenario
    {
       private HttpResponseMessage[] _responses;
 
@@ -23,6 +25,20 @@ namespace Stackage.Core.Tests.DefaultMiddleware.RateLimiting
 
             _responses = gets.Select(x => x.Result).ToArray();
          }
+      }
+
+      protected override void ConfigureConfiguration(IConfigurationBuilder configurationBuilder)
+      {
+         base.ConfigureConfiguration(configurationBuilder);
+
+         configurationBuilder.AddInMemoryCollection(new Dictionary<string, string>
+         {
+            {"RATELIMITING:ENABLED", "false"},
+            {"RATELIMITING:REQUESTSPERPERIOD", "6"},
+            {"RATELIMITING:PERIODSECONDS", "0.05"},
+            {"RATELIMITING:BURSTSIZE", "6"},
+            {"RATELIMITING:MAXWAITMS", "50"}
+         });
       }
 
       protected override void Configure(IApplicationBuilder app)

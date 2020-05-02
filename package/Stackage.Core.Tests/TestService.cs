@@ -16,13 +16,13 @@ namespace Stackage.Core.Tests
    {
       private readonly Action<IWebHostBuilder> _configureWebHostBuilder;
       private readonly Action<IConfigurationBuilder> _configureConfiguration;
-      private readonly Action<IServiceCollection> _configureServices;
+      private readonly Action<IServiceCollection, IConfiguration> _configureServices;
       private readonly Action<IApplicationBuilder> _configure;
 
       public TestService(
          Action<IWebHostBuilder> configureWebHostBuilder,
          Action<IConfigurationBuilder> configureConfiguration,
-         Action<IServiceCollection> configureServices,
+         Action<IServiceCollection, IConfiguration> configureServices,
          Action<IApplicationBuilder> configure)
       {
          _configureWebHostBuilder = configureWebHostBuilder;
@@ -106,7 +106,7 @@ namespace Stackage.Core.Tests
 
          builder
             .ConfigureAppConfiguration(_configureConfiguration)
-            .ConfigureServices(_configureServices)
+            .ConfigureServices((context, services) => _configureServices(services, context.Configuration))
             .Configure(_configure);
 
          var server = new TestServer(builder);

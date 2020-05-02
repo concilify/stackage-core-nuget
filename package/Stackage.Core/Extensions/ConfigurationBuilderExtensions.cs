@@ -13,7 +13,7 @@ namespace Stackage.Core.Extensions
 
       public static IConfigurationBuilder AddDockerSecrets(this IConfigurationBuilder configurationBuilder, string prefix)
       {
-         configurationBuilder.Add(new DockerSecretsConfigurationSource { Prefix = prefix});
+         configurationBuilder.Add(new DockerSecretsConfigurationSource {Prefix = prefix});
          return configurationBuilder;
       }
    }

@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Stackage.Core.Configuration
 {
-   public class DockerSecretsConfigurationSource  : IConfigurationSource
+   public class DockerSecretsConfigurationSource : IConfigurationSource
    {
       public string Prefix { get; set; }
 

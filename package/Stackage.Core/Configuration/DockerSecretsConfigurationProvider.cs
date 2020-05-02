@@ -27,8 +27,9 @@ namespace Stackage.Core.Configuration
 
          var filteredSecrets = Directory.EnumerateFiles(SecretsPath)
             .Where(File.Exists)
-            .Select(path => new { Path = path, Key = DeriveKeyFrom(path) })
-            .Where(secret => secret.Key.StartsWith(_prefix, StringComparison.OrdinalIgnoreCase));;
+            .Select(path => new {Path = path, Key = DeriveKeyFrom(path)})
+            .Where(secret => secret.Key.StartsWith(_prefix, StringComparison.OrdinalIgnoreCase));
+         ;
 
          foreach (var secret in filteredSecrets)
          {

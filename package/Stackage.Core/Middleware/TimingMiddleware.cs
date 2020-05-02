@@ -38,7 +38,7 @@ namespace Stackage.Core.Middleware
          var dimensions = new Dictionary<string, object>
          {
             {"method", context.Request.Method},
-            {"path", context.Request.Path.ToString()}
+            {"path", $"{context.Request.PathBase}{context.Request.Path}"}
          };
 
          await timingPolicy.ExecuteAsync((_) => _next(context), dimensions);
