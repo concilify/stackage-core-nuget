@@ -10,6 +10,7 @@ using Stackage.Core.Abstractions;
 using Stackage.Core.Abstractions.Metrics;
 using Stackage.Core.Extensions;
 using Stackage.Core.Middleware;
+using Stackage.Core.StartupTasks;
 
 namespace Stackage.Core.Tests.DefaultMiddleware
 {
@@ -19,6 +20,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware
       protected IServiceInfo ServiceInfo { get; private set; }
       protected StubMetricSink MetricSink { get; private set; }
       protected StubLogger<ExceptionHandlingMiddleware> Logger { get; private set; }
+      protected StubLogger<StartupTasksExecutor> StartupTasksLogger { get; private set; }
       protected TestService TestService { get; private set; }
 
       [OneTimeSetUp]
@@ -34,6 +36,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware
          ServiceInfo = A.Fake<IServiceInfo>();
          MetricSink = new StubMetricSink();
          Logger = new StubLogger<ExceptionHandlingMiddleware>();
+         StartupTasksLogger = new StubLogger<StartupTasksExecutor>();
 
          A.CallTo(() => GuidGenerator.Generate()).Returns("not-a-guid");
          A.CallTo(() => ServiceInfo.Service).Returns("service");
@@ -57,6 +60,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware
          services.AddSingleton(ServiceInfo);
          services.AddSingleton<IMetricSink>(MetricSink);
          services.AddSingleton<ILogger<ExceptionHandlingMiddleware>>(Logger);
+         services.AddSingleton<ILogger<StartupTasksExecutor>>(StartupTasksLogger);
       }
 
       protected virtual void Configure(IApplicationBuilder app)

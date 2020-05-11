@@ -45,6 +45,7 @@ namespace Stackage.Core.Extensions
             .UseMiddleware<TimingMiddleware>()
             .UseMiddleware<RateLimitingMiddleware>()
             .UseMiddleware<ExceptionHandlingMiddleware>()
+            .UseMiddleware<StartupTasksMiddleware>()
             .UseMiddleware<PingMiddleware>()
             .UseMiddleware<HealthMiddleware>();
       }

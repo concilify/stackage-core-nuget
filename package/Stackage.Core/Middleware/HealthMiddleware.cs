@@ -42,6 +42,8 @@ namespace Stackage.Core.Middleware
 
          var healthReport = await healthCheckService.CheckHealthAsync((_) => true, context.RequestAborted);
 
+         context.Response.Headers["Cache-Control"] = "no-store";
+
          await context.Response.WriteJsonAsync(
             GetStatusCode(healthReport.Status),
             GetContent(healthReport, serviceInfo),

@@ -15,7 +15,8 @@ namespace Stackage.Core.Tests
          var entry = new Entry
          {
             LogLevel = logLevel,
-            Message = formatter(state, exception)
+            Message = formatter(state, exception),
+            Exception = exception
          };
 
          if (state is IReadOnlyList<KeyValuePair<string, object>> values)
