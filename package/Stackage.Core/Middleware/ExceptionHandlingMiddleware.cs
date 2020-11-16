@@ -36,9 +36,13 @@ namespace Stackage.Core.Middleware
          {
             await context.Response.WriteJsonAsync((HttpStatusCode) 499, new {message = "Client Closed Request"});
          }
-         catch (AuthenticationException)
+         catch (AuthenticationException e)
          {
-            await context.Response.WriteJsonAsync(HttpStatusCode.Unauthorized, new {message = "Unauthorized"});
+            var token = _guidGenerator.Generate().Substring(0, 8).ToUpper();
+
+            _logger.LogWarning(e, "An authentication exception has occurred (token={token})", token);
+
+            await context.Response.WriteJsonAsync(HttpStatusCode.Unauthorized, new {message = "Unauthorized", token});
          }
          catch (Exception e)
          {

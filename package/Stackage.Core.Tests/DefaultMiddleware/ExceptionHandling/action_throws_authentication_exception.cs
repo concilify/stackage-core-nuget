@@ -3,7 +3,11 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
 using System.Threading.Tasks;
+using FakeItEasy;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
@@ -23,6 +27,13 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
          _content = await _response.Content.ReadAsStringAsync();
       }
 
+      protected override void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+      {
+         base.ConfigureServices(services, configuration);
+
+         A.CallTo(() => GuidGenerator.Generate()).ReturnsNextFromSequence("abc123def456");
+      }
+
       protected override void Configure(IApplicationBuilder app)
       {
          base.Configure(app);
@@ -38,9 +49,9 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
       }
 
       [Test]
-      public void should_return_json_content()
+      public void should_return_json_content_with_token()
       {
-         _content.ShouldBe("{\"message\":\"Unauthorized\"}");
+         _content.ShouldBe("{\"message\":\"Unauthorized\",\"token\":\"ABC123DE\"}");
       }
 
       [Test]
@@ -50,9 +61,16 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
       }
 
       [Test]
-      public void should_not_log_a_message()
+      public void should_log_a_single_message()
       {
-         Logger.Entries.Count.ShouldBe(0);
+         Logger.Entries.Count.ShouldBe(1);
+      }
+
+      [Test]
+      public void should_log_warning_message_with_token()
+      {
+         Logger.Entries[0].LogLevel.ShouldBe(LogLevel.Warning);
+         Logger.Entries[0].Message.ShouldBe("An authentication exception has occurred (token=ABC123DE)");
       }
 
       [Test]
