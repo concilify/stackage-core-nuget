@@ -1,5 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -33,16 +35,27 @@ namespace Stackage.Core.Extensions
 
          services.AddHostedService<StartupTasksBackgroundService>();
 
-         services.Configure<DefaultMiddlewareOptions>(configuration);
-         services.Configure<PingOptions>(configuration.GetSection("ping"));
-         services.Configure<HealthOptions>(configuration.GetSection("health"));
-         services.Configure<RateLimitingOptions>(configuration.GetSection("ratelimiting"));
-         services.Configure<BasePathRewritingOptions>(configuration.GetSection("basepathrewriting"));
+         var stackageConfiguration = configuration.GetSection("stackage");
 
-         services.AddHsts(hstsOptions =>
+         services.Configure<StackageOptions>(stackageConfiguration);
+         services.Configure<PingOptions>(stackageConfiguration.GetSection("ping"));
+         services.Configure<HealthOptions>(stackageConfiguration.GetSection("health"));
+         services.Configure<RateLimitingOptions>(stackageConfiguration.GetSection("ratelimiting"));
+         services.Configure<BasePathRewritingOptions>(stackageConfiguration.GetSection("basepathrewriting"));
+
+         services.Configure<ForwardedHeadersOptions>(options =>
          {
-            hstsOptions.MaxAge = TimeSpan.FromDays(365);
-            hstsOptions.IncludeSubDomains = true;
+            options.ForwardedHeaders = ForwardedHeaders.All;
+
+            // Remove default networks and proxies - if not empty would need to supply IP address of Docker network
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+         });
+
+         services.Configure<HstsOptions>(options =>
+         {
+            options.MaxAge = TimeSpan.FromDays(365);
+            options.IncludeSubDomains = true;
          });
 
          return services;

@@ -33,11 +33,11 @@ namespace Stackage.Core.Tests.DefaultMiddleware.RateLimiting
 
          configurationBuilder.AddInMemoryCollection(new Dictionary<string, string>
          {
-            {"RATELIMITING:ENABLED", "false"},
-            {"RATELIMITING:REQUESTSPERPERIOD", "6"},
-            {"RATELIMITING:PERIODSECONDS", "0.05"},
-            {"RATELIMITING:BURSTSIZE", "6"},
-            {"RATELIMITING:MAXWAITMS", "50"}
+            {"STACKAGE:RATELIMITING:ENABLED", "false"},
+            {"STACKAGE:RATELIMITING:REQUESTSPERPERIOD", "6"},
+            {"STACKAGE:RATELIMITING:PERIODSECONDS", "0.05"},
+            {"STACKAGE:RATELIMITING:BURSTSIZE", "6"},
+            {"STACKAGE:RATELIMITING:MAXWAITMS", "50"}
          });
       }
 

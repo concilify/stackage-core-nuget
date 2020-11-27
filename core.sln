@@ -17,6 +17,7 @@ ProjectSection(SolutionItems) = preProject
 	.editorconfig = .editorconfig
 	.gitignore = .gitignore
 	build.ps1 = build.ps1
+	README.md = README.md
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pipelines", "pipelines", "{06EE2AEB-A94F-4C6B-9829-E1F798951EAD}"

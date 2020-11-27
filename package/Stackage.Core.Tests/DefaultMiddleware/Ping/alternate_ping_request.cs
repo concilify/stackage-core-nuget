@@ -29,7 +29,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Ping
          configurationBuilder
             .AddInMemoryCollection(new Dictionary<string, string>
             {
-               {"PING:ENDPOINT", "/pingz"}
+               {"STACKAGE:PING:ENDPOINT", "/pingz"}
             });
       }
 

@@ -33,9 +33,9 @@ namespace Stackage.Core.Tests.DefaultMiddleware.BasePathRewriting
          // Everything beginning /oauth is pass-through, everything else has had /api removed
          configurationBuilder.AddInMemoryCollection(new Dictionary<string, string>
          {
-            {"BASEPATHREWRITING:RULES:0:MATCH", "/oauth"},
-            {"BASEPATHREWRITING:RULES:1:MATCH", ""},
-            {"BASEPATHREWRITING:RULES:1:REMOVED", "/api"}
+            {"STACKAGE:BASEPATHREWRITING:RULES:0:MATCH", "/oauth"},
+            {"STACKAGE:BASEPATHREWRITING:RULES:1:MATCH", ""},
+            {"STACKAGE:BASEPATHREWRITING:RULES:1:REMOVED", "/api"}
          });
       }
 

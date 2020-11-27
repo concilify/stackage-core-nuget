@@ -31,7 +31,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
          configurationBuilder
             .AddInMemoryCollection(new Dictionary<string, string>
             {
-               {"HEALTH:ENDPOINT", "/healthz"}
+               {"STACKAGE:HEALTH:ENDPOINT", "/healthz"}
             });
       }
 

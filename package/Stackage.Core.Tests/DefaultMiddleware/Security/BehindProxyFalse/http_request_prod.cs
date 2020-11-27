@@ -39,7 +39,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Security.BehindProxyFalse
 
          configurationBuilder.AddInMemoryCollection(new Dictionary<string, string>
          {
-            {"RUNNINGBEHINDPROXY", "false"}
+            {"STACKAGE:RUNNINGBEHINDPROXY", "false"}
          });
       }
 

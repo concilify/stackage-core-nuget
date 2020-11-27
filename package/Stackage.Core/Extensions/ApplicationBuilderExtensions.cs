@@ -28,11 +28,11 @@ namespace Stackage.Core.Extensions
 
          app.UseMiddleware<BasePathRewritingMiddleware>();
 
-         var options = app.ApplicationServices.GetRequiredService<IOptions<DefaultMiddlewareOptions>>().Value;
+         var stackageOptions = app.ApplicationServices.GetRequiredService<IOptions<StackageOptions>>().Value;
 
-         if (options.RunningBehindProxy)
+         if (stackageOptions.RunningBehindProxy)
          {
-            app.UseForwardedHeaders(new ForwardedHeadersOptions {ForwardedHeaders = ForwardedHeaders.All});
+            app.UseForwardedHeaders();
          }
          else if (!environment.IsDevelopment())
          {

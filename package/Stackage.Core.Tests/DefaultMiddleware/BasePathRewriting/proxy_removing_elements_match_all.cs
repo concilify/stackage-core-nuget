@@ -30,8 +30,8 @@ namespace Stackage.Core.Tests.DefaultMiddleware.BasePathRewriting
 
          configurationBuilder.AddInMemoryCollection(new Dictionary<string, string>
          {
-            {"BASEPATHREWRITING:RULES:0:MATCH", ""},
-            {"BASEPATHREWRITING:RULES:0:REMOVED", "/foo/bar"}
+            {"STACKAGE:BASEPATHREWRITING:RULES:0:MATCH", ""},
+            {"STACKAGE:BASEPATHREWRITING:RULES:0:REMOVED", "/foo/bar"}
          });
       }
 

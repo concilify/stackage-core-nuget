@@ -58,7 +58,6 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Security.BehindProxyConfigMissin
          _response.Headers.Location.ShouldBe(new Uri("https://localhost:5001/get?query=string"));
       }
 
-
       [Test]
       public void should_not_return_content()
       {
