@@ -3,18 +3,18 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions.Json;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
+using Stackage.Core.Extensions;
 
 namespace Stackage.Core.Tests.DefaultMiddleware.Health
 {
-   // TODO: predicate, cancellation
-   // TODO: test healthchecks called concurrently
-   // TODO: health check throws exception
-
-   public class without_children : health_scenario
+   public class child_is_degraded : health_scenario
    {
       private HttpResponseMessage _response;
       private string _content;
@@ -24,6 +24,13 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
       {
          _response = await TestService.GetAsync("/health");
          _content = await _response.Content.ReadAsStringAsync();
+      }
+
+      protected override void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+      {
+         base.ConfigureServices(services, configuration);
+
+         services.AddHealthCheck("critical-degraded", new StubHealthCheck {CheckHealthResponse = new HealthCheckResult(HealthStatus.Degraded)});
       }
 
       [Test]
@@ -39,24 +46,24 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
 
          var expectedResponse = new JObject
          {
-            ["status"] = "Healthy"
+            ["status"] = "Degraded",
+            ["dependencies"] = new JArray
+            {
+               new JObject
+               {
+                  ["name"] = "critical-degraded",
+                  ["status"] = "Degraded"
+               }
+            }
          };
 
          response.Should().ContainSubtree(expectedResponse);
-         response["durationMs"].Value<int>().ShouldBeGreaterThanOrEqualTo(0);
       }
 
       [Test]
       public void should_return_content_type_json()
       {
          _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
-      }
-
-      [Test]
-      public void should_disable_caching()
-      {
-         _response.Headers.Pragma.ToString().ShouldBe("no-cache");
-         _response.Headers.CacheControl.ToString().ShouldBe("no-store, no-cache");
       }
 
       [Test]

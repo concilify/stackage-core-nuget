@@ -11,9 +11,9 @@ using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
 using Stackage.Core.Abstractions.StartupTasks;
 
-namespace Stackage.Core.Tests.DefaultMiddleware.StartupTasks
+namespace Stackage.Core.Tests.DefaultMiddleware.Health
 {
-   public class ping_while_waiting_for_slow_task : middleware_scenario
+   public class with_slow_startup_task : health_scenario
    {
       private HttpResponseMessage _response;
       private string _content;
@@ -25,7 +25,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.StartupTasks
          {
             await Task.Delay(500);
 
-            _response = await TestService.GetAsync(fakeServer, "/ping");
+            _response = await TestService.GetAsync(fakeServer, "/health");
             _content = await _response.Content.ReadAsStringAsync();
          }
       }
@@ -57,36 +57,16 @@ namespace Stackage.Core.Tests.DefaultMiddleware.StartupTasks
       }
 
       [Test]
-      public void should_not_log_a_message()
+      public void should_return_content_type_text_plain()
       {
-         Logger.Entries.Count.ShouldBe(0);
+         _response.Content.Headers.ContentType.MediaType.ShouldBe("text/plain");
       }
 
       [Test]
-      public void should_write_two_metrics()
-      {
-         Assert.That(MetricSink.Metrics.Count, Is.EqualTo(2));
-      }
-
-      [Test]
-      public void should_write_start_metric()
-      {
-         var metric = (Counter) MetricSink.Metrics.First();
-
-         Assert.That(metric.Name, Is.EqualTo("http_request_start"));
-         Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
-         Assert.That(metric.Dimensions["path"], Is.EqualTo("/ping"));
-      }
-
-      [Test]
-      public void should_write_end_metric()
+      public void should_write_end_metric_with_status_503()
       {
          var metric = (Gauge) MetricSink.Metrics.Last();
 
-         Assert.That(metric.Name, Is.EqualTo("http_request_end"));
-         Assert.That(metric.Value, Is.GreaterThanOrEqualTo(0));
-         Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
-         Assert.That(metric.Dimensions["path"], Is.EqualTo("/ping"));
          Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(503));
       }
    }

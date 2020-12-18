@@ -1,7 +1,10 @@
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
+using FakeItEasy;
 using FluentAssertions.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +17,7 @@ using Stackage.Core.Extensions;
 
 namespace Stackage.Core.Tests.DefaultMiddleware.Health
 {
-   public class degraded_child : health_scenario
+   public class child_registered_by_type : health_scenario
    {
       private HttpResponseMessage _response;
       private string _content;
@@ -30,7 +33,19 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
       {
          base.ConfigureServices(services, configuration);
 
-         services.AddHealthCheck("critical-degraded", new StubHealthCheck {CheckHealthResponse = new HealthCheckResult(HealthStatus.Degraded)});
+         var response = A.Fake<IHealthCheckResponse>();
+         A.CallTo(() => response.Value).Returns(new HealthCheckResult(HealthStatus.Degraded));
+
+         services.AddSingleton<IHealthCheckResponse>(response);
+
+         services.AddHealthCheck<TestHealthCheck>("using-generic-type");
+      }
+
+      private static IHealthCheck BuildHealthCheck(IServiceProvider sp)
+      {
+         var response = sp.GetRequiredService<IHealthCheckResponse>();
+
+         return new StubHealthCheck {CheckHealthResponse = response.Value};
       }
 
       [Test]
@@ -51,7 +66,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
             {
                new JObject
                {
-                  ["name"] = "critical-degraded",
+                  ["name"] = "using-generic-type",
                   ["status"] = "Degraded"
                }
             }
@@ -72,6 +87,27 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
          var metric = (Gauge) MetricSink.Metrics.Last();
 
          Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(200));
+      }
+
+      // ReSharper disable once MemberCanBePrivate.Global
+      public interface IHealthCheckResponse
+      {
+         HealthCheckResult Value { get; }
+      }
+
+      public class TestHealthCheck : IHealthCheck
+      {
+         private readonly IHealthCheckResponse _healthCheckResponse;
+
+         public TestHealthCheck(IHealthCheckResponse healthCheckResponse)
+         {
+            _healthCheckResponse = healthCheckResponse;
+         }
+
+         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
+         {
+            return Task.FromResult(_healthCheckResponse.Value);
+         }
       }
    }
 }

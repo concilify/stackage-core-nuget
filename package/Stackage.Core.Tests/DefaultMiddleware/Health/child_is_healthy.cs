@@ -14,7 +14,7 @@ using Stackage.Core.Extensions;
 
 namespace Stackage.Core.Tests.DefaultMiddleware.Health
 {
-   public class healthy_child : health_scenario
+   public class child_is_healthy : health_scenario
    {
       private HttpResponseMessage _response;
       private string _content;

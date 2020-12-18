@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Stackage.Core.Extensions;
 using Stackage.Core.Middleware.Options;
@@ -9,29 +10,32 @@ using Stackage.Core.Middleware.Options;
 namespace Stackage.Core.Middleware
 {
    // ReSharper disable once ClassNeverInstantiated.Global
-   public class PingMiddleware
+   public class LivenessMiddleware
    {
       private readonly RequestDelegate _next;
-      private readonly string _pingEndpoint;
+      private readonly string _livenessEndpoint;
 
-      public PingMiddleware(RequestDelegate next, IOptions<PingOptions> options)
+      public LivenessMiddleware(RequestDelegate next, IOptions<HealthOptions> options)
       {
          if (options == null) throw new ArgumentNullException(nameof(options));
 
          _next = next ?? throw new ArgumentNullException(nameof(next));
 
-         _pingEndpoint = options.Value.Endpoint;
+         _livenessEndpoint = options.Value.LivenessEndpoint;
       }
 
       public async Task Invoke(HttpContext context)
       {
-         if (!context.Request.Path.StartsWithSegments(_pingEndpoint, out var remainder) || remainder.HasValue)
+         if (context.Request.Path.Equals(_livenessEndpoint))
          {
-            await _next(context);
+            context.Response.AddNoCacheHeaders();
+
+            await context.Response.WriteTextAsync(HttpStatusCode.OK, HealthStatus.Healthy.ToString());
+
             return;
          }
 
-         await context.Response.WriteTextAsync((HttpStatusCode) 200, "Healthy");
+         await _next(context);
       }
    }
 }

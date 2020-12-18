@@ -1,9 +1,7 @@
-using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FakeItEasy;
 using FluentAssertions.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +14,7 @@ using Stackage.Core.Extensions;
 
 namespace Stackage.Core.Tests.DefaultMiddleware.Health
 {
-   public class register_with_service_provider : health_scenario
+   public class child_is_unhealthy : health_scenario
    {
       private HttpResponseMessage _response;
       private string _content;
@@ -32,25 +30,13 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
       {
          base.ConfigureServices(services, configuration);
 
-         var response = A.Fake<IHealthCheckResponse>();
-         A.CallTo(() => response.Value).Returns(new HealthCheckResult(HealthStatus.Degraded));
-
-         services.AddSingleton<IHealthCheckResponse>(response);
-
-         services.AddHealthCheck("using-service-provider", BuildHealthCheck);
-      }
-
-      private static IHealthCheck BuildHealthCheck(IServiceProvider sp)
-      {
-         var response = sp.GetRequiredService<IHealthCheckResponse>();
-
-         return new StubHealthCheck {CheckHealthResponse = response.Value};
+         services.AddHealthCheck("critical-unhealthy", new StubHealthCheck {CheckHealthResponse = new HealthCheckResult(HealthStatus.Unhealthy)});
       }
 
       [Test]
-      public void should_return_status_code_200()
+      public void should_return_status_code_503()
       {
-         _response.StatusCode.ShouldBe(HttpStatusCode.OK);
+         _response.StatusCode.ShouldBe(HttpStatusCode.ServiceUnavailable);
       }
 
       [Test]
@@ -60,13 +46,13 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
 
          var expectedResponse = new JObject
          {
-            ["status"] = "Degraded",
+            ["status"] = "Unhealthy",
             ["dependencies"] = new JArray
             {
                new JObject
                {
-                  ["name"] = "using-service-provider",
-                  ["status"] = "Degraded"
+                  ["name"] = "critical-unhealthy",
+                  ["status"] = "Unhealthy"
                }
             }
          };
@@ -81,17 +67,11 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
       }
 
       [Test]
-      public void should_write_end_metric_with_status_200()
+      public void should_write_end_metric_with_status_503()
       {
          var metric = (Gauge) MetricSink.Metrics.Last();
 
-         Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(200));
-      }
-
-      // ReSharper disable once MemberCanBePrivate.Global
-      public interface IHealthCheckResponse
-      {
-         HealthCheckResult Value { get; }
+         Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(503));
       }
    }
 }

@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using FakeItEasy;
 using FluentAssertions.Json;
@@ -17,7 +16,7 @@ using Stackage.Core.Extensions;
 
 namespace Stackage.Core.Tests.DefaultMiddleware.Health
 {
-   public class register_with_generic_type : health_scenario
+   public class child_registered_with_factory : health_scenario
    {
       private HttpResponseMessage _response;
       private string _content;
@@ -38,7 +37,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
 
          services.AddSingleton<IHealthCheckResponse>(response);
 
-         services.AddHealthCheck<TestHealthCheck>("using-generic-type");
+         services.AddHealthCheck("using-service-provider", BuildHealthCheck);
       }
 
       private static IHealthCheck BuildHealthCheck(IServiceProvider sp)
@@ -66,7 +65,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
             {
                new JObject
                {
-                  ["name"] = "using-generic-type",
+                  ["name"] = "using-service-provider",
                   ["status"] = "Degraded"
                }
             }
@@ -93,21 +92,6 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
       public interface IHealthCheckResponse
       {
          HealthCheckResult Value { get; }
-      }
-
-      public class TestHealthCheck : IHealthCheck
-      {
-         private readonly IHealthCheckResponse _healthCheckResponse;
-
-         public TestHealthCheck(IHealthCheckResponse healthCheckResponse)
-         {
-            _healthCheckResponse = healthCheckResponse;
-         }
-
-         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
-         {
-            return Task.FromResult(_healthCheckResponse.Value);
-         }
       }
    }
 }

@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-A NuGet API key must have been added to Stackage / Project settings / Service connections in order for DevOps to be able to push NuGet packages
+A NuGet API key with `write:packages` must have been added to Stackage / Project settings / Service connections in order for DevOps to be able to push NuGet packages.
 
 ### Releasing
 

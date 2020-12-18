@@ -1,7 +1,9 @@
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Stackage.Core.Abstractions.StartupTasks;
+using Stackage.Core.Extensions;
 
 namespace Stackage.Core.Middleware
 {
@@ -24,10 +26,9 @@ namespace Stackage.Core.Middleware
          }
          else
          {
-            context.Response.StatusCode = 503;
             context.Response.Headers["Retry-After"] = "30";
 
-            await context.Response.WriteAsync("Service Unavailable");
+            await context.Response.WriteTextAsync(HttpStatusCode.ServiceUnavailable, "Service Unavailable");
          }
       }
    }

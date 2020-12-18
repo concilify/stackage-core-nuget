@@ -2,19 +2,17 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FluentAssertions.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
 using Stackage.Core.Extensions;
 
-namespace Stackage.Core.Tests.DefaultMiddleware.Health
+namespace Stackage.Core.Tests.DefaultMiddleware.Health.Readiness
 {
-   public class unhealthy_child : health_scenario
+   public class child_is_unhealthy : health_scenario
    {
       private HttpResponseMessage _response;
       private string _content;
@@ -22,7 +20,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
       [OneTimeSetUp]
       public async Task setup_scenario()
       {
-         _response = await TestService.GetAsync("/health");
+         _response = await TestService.GetAsync("/health/readiness");
          _content = await _response.Content.ReadAsStringAsync();
       }
 
@@ -40,30 +38,15 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
       }
 
       [Test]
-      public void should_return_content()
+      public void should_return_content_unhealthy()
       {
-         var response = JObject.Parse(_content);
-
-         var expectedResponse = new JObject
-         {
-            ["status"] = "Unhealthy",
-            ["dependencies"] = new JArray
-            {
-               new JObject
-               {
-                  ["name"] = "critical-unhealthy",
-                  ["status"] = "Unhealthy"
-               }
-            }
-         };
-
-         response.Should().ContainSubtree(expectedResponse);
+         _content.ShouldBe("Unhealthy");
       }
 
       [Test]
-      public void should_return_content_type_json()
+      public void should_return_content_type_text_plain()
       {
-         _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+         _response.Content.Headers.ContentType.MediaType.ShouldBe("text/plain");
       }
 
       [Test]

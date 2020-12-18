@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using Stackage.Core.Abstractions;
 using Stackage.Core.Extensions;
@@ -18,6 +19,7 @@ namespace Stackage.Core.Middleware
    {
       private readonly RequestDelegate _next;
       private readonly string _healthEndpoint;
+      private readonly string _readinessEndpoint;
       private readonly JsonSerializerSettings _jsonSerialiserSettings = new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore};
 
       public HealthMiddleware(RequestDelegate next, IOptions<HealthOptions> options)
@@ -27,6 +29,7 @@ namespace Stackage.Core.Middleware
          _next = next ?? throw new ArgumentNullException(nameof(next));
 
          _healthEndpoint = options.Value.Endpoint;
+         _readinessEndpoint = options.Value.ReadinessEndpoint;
       }
 
       public async Task Invoke(
@@ -34,20 +37,32 @@ namespace Stackage.Core.Middleware
          HealthCheckService healthCheckService,
          IServiceInfo serviceInfo)
       {
-         if (!context.Request.Path.StartsWithSegments(_healthEndpoint, out var remainder) || remainder.HasValue)
+         if (context.Request.Path.Equals(_healthEndpoint))
          {
-            await _next(context);
+            var healthReport = await healthCheckService.CheckHealthAsync((_) => true, context.RequestAborted);
+
+            context.Response.AddNoCacheHeaders();
+
+            await context.Response.WriteJsonAsync(
+               GetStatusCode(healthReport.Status),
+               GetContent(healthReport, serviceInfo),
+               _jsonSerialiserSettings);
+
             return;
          }
 
-         var healthReport = await healthCheckService.CheckHealthAsync((_) => true, context.RequestAborted);
+         if (context.Request.Path.Equals(_readinessEndpoint))
+         {
+            var healthReport = await healthCheckService.CheckHealthAsync((_) => true, context.RequestAborted);
 
-         context.Response.Headers["Cache-Control"] = "no-store";
+            context.Response.AddNoCacheHeaders();
 
-         await context.Response.WriteJsonAsync(
-            GetStatusCode(healthReport.Status),
-            GetContent(healthReport, serviceInfo),
-            _jsonSerialiserSettings);
+            await context.Response.WriteTextAsync(GetStatusCode(healthReport.Status), healthReport.Status.ToString());
+
+            return;
+         }
+
+         await _next(context);
       }
 
       private static HttpStatusCode GetStatusCode(HealthStatus healthStatus)

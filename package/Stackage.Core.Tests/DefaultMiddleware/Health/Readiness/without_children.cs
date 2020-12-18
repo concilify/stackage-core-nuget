@@ -2,18 +2,12 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using FluentAssertions.Json;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
 
-namespace Stackage.Core.Tests.DefaultMiddleware.Health
+namespace Stackage.Core.Tests.DefaultMiddleware.Health.Readiness
 {
-   // TODO: predicate, cancellation
-   // TODO: test healthchecks called concurrently
-   // TODO: health check throws exception
-
    public class without_children : health_scenario
    {
       private HttpResponseMessage _response;
@@ -22,7 +16,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
       [OneTimeSetUp]
       public async Task setup_scenario()
       {
-         _response = await TestService.GetAsync("/health");
+         _response = await TestService.GetAsync("/health/readiness");
          _content = await _response.Content.ReadAsStringAsync();
       }
 
@@ -33,23 +27,15 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
       }
 
       [Test]
-      public void should_return_content()
+      public void should_return_content_healthy()
       {
-         var response = JObject.Parse(_content);
-
-         var expectedResponse = new JObject
-         {
-            ["status"] = "Healthy"
-         };
-
-         response.Should().ContainSubtree(expectedResponse);
-         response["durationMs"].Value<int>().ShouldBeGreaterThanOrEqualTo(0);
+         _content.ShouldBe("Healthy");
       }
 
       [Test]
-      public void should_return_content_type_json()
+      public void should_return_content_type_text_plain()
       {
-         _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+         _response.Content.Headers.ContentType.MediaType.ShouldBe("text/plain");
       }
 
       [Test]
