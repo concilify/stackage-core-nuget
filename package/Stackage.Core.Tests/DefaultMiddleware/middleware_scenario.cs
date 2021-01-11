@@ -19,7 +19,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware
       protected IGuidGenerator GuidGenerator { get; private set; }
       protected IServiceInfo ServiceInfo { get; private set; }
       protected StubMetricSink MetricSink { get; private set; }
-      protected StubLogger<ExceptionHandlingMiddleware> Logger { get; private set; }
+      protected StubLogger<TimingAndExceptionHandlingMiddleware> Logger { get; private set; }
       protected StubLogger<StartupTasksExecutor> StartupTasksLogger { get; private set; }
       protected TestService TestService { get; private set; }
 
@@ -35,7 +35,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware
          GuidGenerator = A.Fake<IGuidGenerator>();
          ServiceInfo = A.Fake<IServiceInfo>();
          MetricSink = new StubMetricSink();
-         Logger = new StubLogger<ExceptionHandlingMiddleware>();
+         Logger = new StubLogger<TimingAndExceptionHandlingMiddleware>();
          StartupTasksLogger = new StubLogger<StartupTasksExecutor>();
 
          A.CallTo(() => GuidGenerator.Generate()).Returns("not-a-guid");
@@ -59,7 +59,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware
          services.AddSingleton(GuidGenerator);
          services.AddSingleton(ServiceInfo);
          services.AddSingleton<IMetricSink>(MetricSink);
-         services.AddSingleton<ILogger<ExceptionHandlingMiddleware>>(Logger);
+         services.AddSingleton<ILogger<TimingAndExceptionHandlingMiddleware>>(Logger);
          services.AddSingleton<ILogger<StartupTasksExecutor>>(StartupTasksLogger);
       }
 

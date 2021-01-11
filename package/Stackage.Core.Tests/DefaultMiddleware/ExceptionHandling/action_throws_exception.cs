@@ -38,7 +38,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
       {
          base.Configure(app);
 
-         _exceptionToThrow = new Exception();
+         _exceptionToThrow = new InvalidOperationException();
          app.UseMiddleware<StubResponseMiddleware>(new StubResponseOptions {ThrowException = _exceptionToThrow});
       }
 
@@ -99,6 +99,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
          Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
          Assert.That(metric.Dimensions["path"], Is.EqualTo("/get"));
          Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(500));
+         Assert.That(metric.Dimensions["exception"], Is.EqualTo("InvalidOperationException"));
       }
    }
 }

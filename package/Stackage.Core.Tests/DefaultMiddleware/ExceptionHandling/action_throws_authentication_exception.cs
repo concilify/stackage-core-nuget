@@ -99,6 +99,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
          Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
          Assert.That(metric.Dimensions["path"], Is.EqualTo("/get"));
          Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(401));
+         Assert.That(metric.Dimensions.ContainsKey("exception"), Is.False);
       }
    }
 }
