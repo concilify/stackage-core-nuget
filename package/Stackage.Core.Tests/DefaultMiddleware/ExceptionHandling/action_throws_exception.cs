@@ -31,7 +31,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
       {
          base.ConfigureServices(services, configuration);
 
-         A.CallTo(() => GuidGenerator.Generate()).ReturnsNextFromSequence("abc123def456");
+         A.CallTo(() => GuidGenerator.Generate()).ReturnsNextFromSequence(Guid.Parse("f7f57de4-d904-4781-aee1-203e0247a612"));
       }
 
       protected override void Configure(IApplicationBuilder app)
@@ -51,7 +51,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
       [Test]
       public void should_return_json_content_with_token()
       {
-         _content.ShouldBe("{\"message\":\"Internal Server Error\",\"token\":\"ABC123DE\"}");
+         _content.ShouldBe("{\"message\":\"Internal Server Error\",\"token\":\"F7F57DE4\"}");
       }
 
       [Test]
@@ -70,7 +70,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
       public void should_log_error_message_with_token()
       {
          Logger.Entries[0].LogLevel.ShouldBe(LogLevel.Error);
-         Logger.Entries[0].Message.ShouldBe("An unexpected exception has occurred (token=ABC123DE)");
+         Logger.Entries[0].Message.ShouldBe("An unexpected exception has occurred (token=F7F57DE4)");
       }
 
       [Test]

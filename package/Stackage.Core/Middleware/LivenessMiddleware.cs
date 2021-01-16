@@ -26,16 +26,16 @@ namespace Stackage.Core.Middleware
 
       public async Task Invoke(HttpContext context)
       {
-         if (context.Request.Path.Equals(_livenessEndpoint))
+         if (!context.Request.Path.Equals(_livenessEndpoint))
          {
-            context.Response.AddNoCacheHeaders();
-
-            await context.Response.WriteTextAsync(HttpStatusCode.OK, HealthStatus.Healthy.ToString());
+            await _next(context);
 
             return;
          }
 
-         await _next(context);
+         context.Response.AddNoCacheHeaders();
+
+         await context.Response.WriteTextAsync(HttpStatusCode.OK, HealthStatus.Healthy.ToString());
       }
    }
 }

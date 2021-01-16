@@ -1,0 +1,58 @@
+{
+  "Stackage": {
+    "Prometheus": {
+      "Buckets": [
+        10,
+        30,
+        100,
+        300,
+        1000
+      ],
+      "Metrics": [
+        {
+          "Name": "http_request_start",
+          "Type": "Counter",
+          "Description": "HTTP Server Requests (Count)",
+          "Labels": [
+            "method",
+            "path"
+          ]
+        },
+        {
+          "Name": "http_request_end",
+          "Type": "Histogram",
+          "Description": "HTTP Server Requests (Duration ms)",
+          "Labels": [
+            "method",
+            "path",
+            "statusCode",
+            "exception"
+          ]
+        },
+        {
+          "Name": "db_query_start",
+          "Type": "Counter",
+          "Description": "Database Queries (Count)",
+          "Labels": [
+            "type"
+          ]
+        },
+        {
+          "Name": "db_query_end",
+          "Type": "Histogram",
+          "Description": "Database Queries (Duration ms)",
+          "Labels": [
+            "type"
+          ],
+          "Buckets": [
+            1,
+            3,
+            10,
+            30,
+            100
+          ]
+        }
+      ]
+    }
+  }
+}

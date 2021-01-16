@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -31,7 +32,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
       {
          base.ConfigureServices(services, configuration);
 
-         A.CallTo(() => GuidGenerator.Generate()).ReturnsNextFromSequence("abc123def456");
+         A.CallTo(() => GuidGenerator.Generate()).ReturnsNextFromSequence(Guid.Parse("ad465ca5-ed91-4746-84ee-055d9519427d"));
       }
 
       protected override void Configure(IApplicationBuilder app)
@@ -51,7 +52,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
       [Test]
       public void should_return_json_content_with_token()
       {
-         _content.ShouldBe("{\"message\":\"Unauthorized\",\"token\":\"ABC123DE\"}");
+         _content.ShouldBe("{\"message\":\"Unauthorized\",\"token\":\"AD465CA5\"}");
       }
 
       [Test]
@@ -70,7 +71,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
       public void should_log_warning_message_with_token()
       {
          Logger.Entries[0].LogLevel.ShouldBe(LogLevel.Warning);
-         Logger.Entries[0].Message.ShouldBe("An authentication exception has occurred (token=ABC123DE)");
+         Logger.Entries[0].Message.ShouldBe("An authentication exception has occurred (token=AD465CA5)");
       }
 
       [Test]

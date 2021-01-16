@@ -63,43 +63,50 @@ namespace Stackage.Core.Tests.DefaultMiddleware.StartupTasks
       [Test]
       public void should_log_two_messages()
       {
-         StartupTasksLogger.Entries.Count.ShouldBe(2);
+         StartupTasksExecutorLogger.Entries.Count.ShouldBe(2);
       }
 
       [Test]
-      public void should_log_error_message()
+      public void should_log_startup_message()
       {
-         StartupTasksLogger.Entries[1].LogLevel.ShouldBe(LogLevel.Error);
-         StartupTasksLogger.Entries[1].Message.ShouldBe("Startup task StubStartupTask failed");
-         StartupTasksLogger.Entries[1].Exception.ShouldBeSameAs(_exceptionToThrow);
+         StartupTasksExecutorLogger.Entries[0].LogLevel.ShouldBe(LogLevel.Information);
+         StartupTasksExecutorLogger.Entries[0].Message.ShouldBe("Startup task StubStartupTask executing...");
       }
 
       [Test]
-      public void should_write_two_metrics()
+      public void should_log_failed_message()
       {
-         Assert.That(MetricSink.Metrics.Count, Is.EqualTo(2));
+         StartupTasksExecutorLogger.Entries[1].LogLevel.ShouldBe(LogLevel.Error);
+         StartupTasksExecutorLogger.Entries[1].Message.ShouldBe("Startup task StubStartupTask failed");
+         StartupTasksExecutorLogger.Entries[1].Exception.ShouldBeSameAs(_exceptionToThrow);
       }
 
       [Test]
-      public void should_write_start_metric()
+      public void should_log_warning_message_in_middleware()
       {
-         var metric = (Counter) MetricSink.Metrics.First();
+         StartupTasksMiddlewareLogger.Entries.Count.ShouldBe(1);
+      }
 
-         Assert.That(metric.Name, Is.EqualTo("http_request_start"));
+      [Test]
+      public void should_log_message_containing_path()
+      {
+         StartupTasksMiddlewareLogger.Entries[0].LogLevel.ShouldBe(LogLevel.Warning);
+         StartupTasksMiddlewareLogger.Entries[0].Message.ShouldBe("Unable to fulfill request /get");
+      }
+
+      [Test]
+      public void should_write_one_metric()
+      {
+         Assert.That(MetricSink.Metrics.Count, Is.EqualTo(1));
+      }
+
+      [Test]
+      public void should_write_not_ready_metric()
+      {
+         var metric = (Counter) MetricSink.Metrics.Last();
+
+         Assert.That(metric.Name, Is.EqualTo("not_ready"));
          Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
-         Assert.That(metric.Dimensions["path"], Is.EqualTo("/get"));
-      }
-
-      [Test]
-      public void should_write_end_metric()
-      {
-         var metric = (Gauge) MetricSink.Metrics.Last();
-
-         Assert.That(metric.Name, Is.EqualTo("http_request_end"));
-         Assert.That(metric.Value, Is.GreaterThanOrEqualTo(0));
-         Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
-         Assert.That(metric.Dimensions["path"], Is.EqualTo("/get"));
-         Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(503));
       }
    }
 }

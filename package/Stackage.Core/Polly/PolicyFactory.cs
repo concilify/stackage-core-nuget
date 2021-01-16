@@ -1,12 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Polly;
 using Stackage.Core.Abstractions.Metrics;
 using Stackage.Core.Abstractions.Polly;
 using Stackage.Core.Abstractions.Polly.RateLimit;
+using Stackage.Core.Polly.Metrics;
 using Stackage.Core.Polly.RateLimit;
-using Stackage.Core.Polly.Timing;
 
 namespace Stackage.Core.Polly
 {
@@ -26,24 +25,22 @@ namespace Stackage.Core.Polly
          return new AsyncRateLimitPolicy<TResult>(rateLimiter, onRejectionAsync);
       }
 
-      public IAsyncPolicy CreateAsyncTimingPolicy(
+      public IAsyncPolicy CreateAsyncMetricsPolicy(
          string name,
          IMetricSink metricSink,
-         IDictionary<string, object> policyDimensions = null,
          Func<Context, Task> onSuccessAsync = null,
          Func<Context, Exception, Task> onExceptionAsync = null)
       {
-         return new AsyncTimingPolicy(name, metricSink, policyDimensions, onSuccessAsync, onExceptionAsync);
+         return new AsyncMetricsPolicy(name, metricSink, onSuccessAsync, onExceptionAsync);
       }
 
-      public IAsyncPolicy<TResult> CreateAsyncTimingPolicy<TResult>(
+      public IAsyncPolicy<TResult> CreateAsyncMetricsPolicy<TResult>(
          string name,
          IMetricSink metricSink,
-         IDictionary<string, object> policyDimensions = null,
          Func<Context, TResult, Task> onSuccessAsync = null,
          Func<Context, Exception, Task> onExceptionAsync = null)
       {
-         return new AsyncTimingPolicy<TResult>(name, metricSink, policyDimensions, onSuccessAsync, onExceptionAsync);
+         return new AsyncMetricsPolicy<TResult>(name, metricSink, onSuccessAsync, onExceptionAsync);
       }
    }
 }

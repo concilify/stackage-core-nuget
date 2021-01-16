@@ -56,13 +56,13 @@ namespace Stackage.Core.Tests.DefaultMiddleware.StartupTasks
       [Test]
       public void should_log_four_errors()
       {
-         StartupTasksLogger.Entries.Count.ShouldBe(4);
+         StartupTasksExecutorLogger.Entries.Count.ShouldBe(4);
       }
 
       [Test]
       public void should_log_error_messages()
       {
-         var errorEntries = StartupTasksLogger.Entries.Where(c => c.LogLevel == LogLevel.Error).ToList();
+         var errorEntries = StartupTasksExecutorLogger.Entries.Where(c => c.LogLevel == LogLevel.Error).ToList();
 
          errorEntries.Count.ShouldBe(2);
 
@@ -71,31 +71,31 @@ namespace Stackage.Core.Tests.DefaultMiddleware.StartupTasks
       }
 
       [Test]
-      public void should_write_two_metrics()
+      public void should_log_warning_message_in_middleware()
       {
-         Assert.That(MetricSink.Metrics.Count, Is.EqualTo(2));
+         StartupTasksMiddlewareLogger.Entries.Count.ShouldBe(1);
       }
 
       [Test]
-      public void should_write_start_metric()
+      public void should_log_message_containing_path()
       {
-         var metric = (Counter) MetricSink.Metrics.First();
-
-         Assert.That(metric.Name, Is.EqualTo("http_request_start"));
-         Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
-         Assert.That(metric.Dimensions["path"], Is.EqualTo("/get"));
+         StartupTasksMiddlewareLogger.Entries[0].LogLevel.ShouldBe(LogLevel.Warning);
+         StartupTasksMiddlewareLogger.Entries[0].Message.ShouldBe("Unable to fulfill request /get");
       }
 
       [Test]
-      public void should_write_end_metric()
+      public void should_write_one_metric()
       {
-         var metric = (Gauge) MetricSink.Metrics.Last();
+         Assert.That(MetricSink.Metrics.Count, Is.EqualTo(1));
+      }
 
-         Assert.That(metric.Name, Is.EqualTo("http_request_end"));
-         Assert.That(metric.Value, Is.GreaterThanOrEqualTo(0));
+      [Test]
+      public void should_write_not_ready_metric()
+      {
+         var metric = (Counter) MetricSink.Metrics.Last();
+
+         Assert.That(metric.Name, Is.EqualTo("not_ready"));
          Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
-         Assert.That(metric.Dimensions["path"], Is.EqualTo("/get"));
-         Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(503));
       }
    }
 }

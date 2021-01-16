@@ -1,9 +1,9 @@
 using System;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Prometheus;
 using Stackage.Core.Middleware;
 using Stackage.Core.Middleware.Options;
 
@@ -42,9 +42,11 @@ namespace Stackage.Core.Extensions
          }
 
          return app
-            .UseMiddleware<TimingAndExceptionHandlingMiddleware>()
             .UseMiddleware<LivenessMiddleware>()
+            .UseMetricServer("/metrics")
+            .UseMiddleware<ReadinessMiddleware>()
             .UseMiddleware<StartupTasksMiddleware>()
+            .UseMiddleware<MetricsAndExceptionHandlingMiddleware>()
             .UseMiddleware<RateLimitingMiddleware>()
             .UseMiddleware<HealthMiddleware>();
       }

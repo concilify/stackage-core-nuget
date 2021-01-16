@@ -56,43 +56,30 @@ namespace Stackage.Core.Tests.DefaultMiddleware.StartupTasks
       [Test]
       public void should_log_four_errors()
       {
-         StartupTasksLogger.Entries.Count.ShouldBe(4);
+         StartupTasksExecutorLogger.Entries.Count.ShouldBe(4);
       }
 
       [Test]
       public void should_log_error_message()
       {
-         var errorEntry = StartupTasksLogger.Entries.Single(c => c.LogLevel == LogLevel.Error);
+         var errorEntry = StartupTasksExecutorLogger.Entries.Single(c => c.LogLevel == LogLevel.Error);
 
          errorEntry.Exception.InnerException?.Message.ShouldBe("Task failed");
       }
 
       [Test]
-      public void should_write_two_metrics()
+      public void should_write_one_metric()
       {
-         Assert.That(MetricSink.Metrics.Count, Is.EqualTo(2));
+         Assert.That(MetricSink.Metrics.Count, Is.EqualTo(1));
       }
 
       [Test]
-      public void should_write_start_metric()
+      public void should_write_not_ready_metric()
       {
-         var metric = (Counter) MetricSink.Metrics.First();
+         var metric = (Counter) MetricSink.Metrics.Last();
 
-         Assert.That(metric.Name, Is.EqualTo("http_request_start"));
+         Assert.That(metric.Name, Is.EqualTo("not_ready"));
          Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
-         Assert.That(metric.Dimensions["path"], Is.EqualTo("/get"));
-      }
-
-      [Test]
-      public void should_write_end_metric()
-      {
-         var metric = (Gauge) MetricSink.Metrics.Last();
-
-         Assert.That(metric.Name, Is.EqualTo("http_request_end"));
-         Assert.That(metric.Value, Is.GreaterThanOrEqualTo(0));
-         Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
-         Assert.That(metric.Dimensions["path"], Is.EqualTo("/get"));
-         Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(503));
       }
    }
 }

@@ -11,7 +11,7 @@ using Stackage.Core.Extensions;
 
 namespace Stackage.Core.Tests.DefaultMiddleware.Health
 {
-   public class timing : middleware_scenario
+   public class children_with_latency : middleware_scenario
    {
       private HttpResponseMessage _response;
       private string _content;

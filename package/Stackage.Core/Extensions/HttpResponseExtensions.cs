@@ -25,6 +25,13 @@ namespace Stackage.Core.Extensions
          await response.WriteAsync(JsonConvert.SerializeObject(content, settings), Encoding.UTF8);
       }
 
+      public static async Task WriteServiceUnavailableAsync(this HttpResponse response)
+      {
+         response.Headers["Retry-After"] = "30";
+
+         await response.WriteTextAsync(HttpStatusCode.ServiceUnavailable, "Service Unavailable");
+      }
+
       public static void AddNoCacheHeaders(this HttpResponse response)
       {
          var headers = response.Headers;

@@ -5,9 +5,6 @@ namespace Stackage.Core
 {
    public class GuidGenerator : IGuidGenerator
    {
-      public string Generate()
-      {
-         return Guid.NewGuid().ToString();
-      }
+      public Guid Generate() => Guid.NewGuid();
    }
 }

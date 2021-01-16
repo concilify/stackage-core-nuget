@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
@@ -13,7 +14,7 @@ using Stackage.Core.Abstractions.StartupTasks;
 
 namespace Stackage.Core.Tests.DefaultMiddleware.Health
 {
-   public class with_slow_startup_task : health_scenario
+   public class with_slow_startup_task : middleware_scenario
    {
       private HttpResponseMessage _response;
       private string _content;
@@ -63,11 +64,31 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
       }
 
       [Test]
-      public void should_write_end_metric_with_status_503()
+      public void should_log_warning_message_in_middleware()
       {
-         var metric = (Gauge) MetricSink.Metrics.Last();
+         StartupTasksMiddlewareLogger.Entries.Count.ShouldBe(1);
+      }
 
-         Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(503));
+      [Test]
+      public void should_log_message_containing_path()
+      {
+         StartupTasksMiddlewareLogger.Entries[0].LogLevel.ShouldBe(LogLevel.Warning);
+         StartupTasksMiddlewareLogger.Entries[0].Message.ShouldBe("Unable to fulfill request /health");
+      }
+
+      [Test]
+      public void should_write_one_metric()
+      {
+         Assert.That(MetricSink.Metrics.Count, Is.EqualTo(1));
+      }
+
+      [Test]
+      public void should_write_not_ready_metric()
+      {
+         var metric = (Counter) MetricSink.Metrics.Last();
+
+         Assert.That(metric.Name, Is.EqualTo("not_ready"));
+         Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
       }
    }
 }
