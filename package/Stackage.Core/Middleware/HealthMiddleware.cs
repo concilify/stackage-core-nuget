@@ -74,7 +74,7 @@ namespace Stackage.Core.Middleware
          };
       }
 
-      private static object GetDependencies(HealthReport healthReport)
+      private static object? GetDependencies(HealthReport healthReport)
       {
          if (healthReport.Entries == null || healthReport.Entries.Count == 0)
          {
@@ -99,12 +99,12 @@ namespace Stackage.Core.Middleware
          };
       }
 
-      private static object GetException(HealthReportEntry entry)
+      private static object? GetException(HealthReportEntry entry)
       {
          return entry.Exception?.GetType().FullName;
       }
 
-      private static object GetData(HealthReportEntry entry)
+      private static object? GetData(HealthReportEntry entry)
       {
          if (entry.Data == null || entry.Data.Count == 0)
          {

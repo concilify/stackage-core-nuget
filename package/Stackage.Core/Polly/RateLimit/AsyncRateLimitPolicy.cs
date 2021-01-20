@@ -9,11 +9,11 @@ namespace Stackage.Core.Polly.RateLimit
    public class AsyncRateLimitPolicy : AsyncPolicy, IRateLimitPolicy, IsPolicy
    {
       private readonly IRateLimiter _rateLimiter;
-      private readonly Func<Context, Exception, Task> _onRejectionAsync;
+      private readonly Func<Context, Exception, Task>? _onRejectionAsync;
 
       public AsyncRateLimitPolicy(
          IRateLimiter rateLimiter,
-         Func<Context, Exception, Task> onRejectionAsync)
+         Func<Context, Exception, Task>? onRejectionAsync)
       {
          _rateLimiter = rateLimiter ?? throw new ArgumentNullException(nameof(rateLimiter));
          _onRejectionAsync = onRejectionAsync;
@@ -32,11 +32,11 @@ namespace Stackage.Core.Polly.RateLimit
    public class AsyncRateLimitPolicy<TResult> : AsyncPolicy<TResult>, IRateLimitPolicy<TResult>, IsPolicy
    {
       private readonly IRateLimiter _rateLimiter;
-      private readonly Func<Context, Exception, Task> _onRejectionAsync;
+      private readonly Func<Context, Exception, Task>? _onRejectionAsync;
 
       public AsyncRateLimitPolicy(
          IRateLimiter rateLimiter,
-         Func<Context, Exception, Task> onRejectionAsync)
+         Func<Context, Exception, Task>? onRejectionAsync)
       {
          _rateLimiter = rateLimiter ?? throw new ArgumentNullException(nameof(rateLimiter));
          _onRejectionAsync = onRejectionAsync;

@@ -16,7 +16,7 @@ namespace Stackage.Core.Tests.MetricSinks.LoggingMetricSink
 
          var loggingMetricSink = new Core.MetricSinks.LoggingMetricSink(_logger);
 
-         var metric = new Counter {Name = "foo"};
+         var metric = new Counter("foo");
          await loggingMetricSink.PushAsync(metric);
       }
 

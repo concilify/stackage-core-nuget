@@ -40,7 +40,7 @@ namespace Stackage.Core.Tests.MetricSinks
       [Test]
       public void parses_four_metrics()
       {
-         _prometheusOptions.Metrics.Count.ShouldBe(4);
+         _prometheusOptions.Metrics.Length.ShouldBe(4);
       }
 
       [Test]

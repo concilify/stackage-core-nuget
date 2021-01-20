@@ -20,7 +20,7 @@ namespace Stackage.Core.Middleware
 
          var basePathRewritingOptions = options.Value;
 
-         if (basePathRewritingOptions.Rules != null && basePathRewritingOptions.Rules.Count != 0)
+         if (basePathRewritingOptions.Rules.Length != 0)
          {
             // TODO: Test for this
 

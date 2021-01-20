@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 
 namespace Stackage.Core.MetricSinks
 {
@@ -8,8 +8,8 @@ namespace Stackage.Core.MetricSinks
 
       public string SanitiserFallback { get; set; } = "*";
 
-      public double[] Buckets { get; set; }
+      public double[] Buckets { get; set; } = Array.Empty<double>();
 
-      public IList<Metric> Metrics { get; set; } = new List<Metric>();
+      public Metric[] Metrics { get; set; } = Array.Empty<Metric>();
    }
 }

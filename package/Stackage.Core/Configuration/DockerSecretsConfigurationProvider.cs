@@ -15,7 +15,7 @@ namespace Stackage.Core.Configuration
 
       public DockerSecretsConfigurationProvider(string prefix)
       {
-         _prefix = prefix ?? string.Empty;
+         _prefix = prefix;
       }
 
       public override void Load()
@@ -42,7 +42,7 @@ namespace Stackage.Core.Configuration
 
       private static string DeriveKeyFrom(string path)
       {
-         return Path.GetFileName(path)?.Replace(KeyDelimiter, ConfigurationPath.KeyDelimiter);
+         return Path.GetFileName(path).Replace(KeyDelimiter, ConfigurationPath.KeyDelimiter);
       }
    }
 }

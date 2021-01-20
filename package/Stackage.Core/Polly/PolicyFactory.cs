@@ -13,14 +13,14 @@ namespace Stackage.Core.Polly
    {
       public IAsyncPolicy CreateAsyncRateLimitPolicy(
          IRateLimiter rateLimiter,
-         Func<Context, Exception, Task> onRejectionAsync = null)
+         Func<Context, Exception, Task>? onRejectionAsync = null)
       {
          return new AsyncRateLimitPolicy(rateLimiter, onRejectionAsync);
       }
 
       public IAsyncPolicy<TResult> CreateAsyncRateLimitPolicy<TResult>(
          IRateLimiter rateLimiter,
-         Func<Context, Exception, Task> onRejectionAsync = null)
+         Func<Context, Exception, Task>? onRejectionAsync = null)
       {
          return new AsyncRateLimitPolicy<TResult>(rateLimiter, onRejectionAsync);
       }
@@ -28,8 +28,8 @@ namespace Stackage.Core.Polly
       public IAsyncPolicy CreateAsyncMetricsPolicy(
          string name,
          IMetricSink metricSink,
-         Func<Context, Task> onSuccessAsync = null,
-         Func<Context, Exception, Task> onExceptionAsync = null)
+         Func<Context, Task>? onSuccessAsync = null,
+         Func<Context, Exception, Task>? onExceptionAsync = null)
       {
          return new AsyncMetricsPolicy(name, metricSink, onSuccessAsync, onExceptionAsync);
       }
@@ -37,8 +37,8 @@ namespace Stackage.Core.Polly
       public IAsyncPolicy<TResult> CreateAsyncMetricsPolicy<TResult>(
          string name,
          IMetricSink metricSink,
-         Func<Context, TResult, Task> onSuccessAsync = null,
-         Func<Context, Exception, Task> onExceptionAsync = null)
+         Func<Context, TResult, Task>? onSuccessAsync = null,
+         Func<Context, Exception, Task>? onExceptionAsync = null)
       {
          return new AsyncMetricsPolicy<TResult>(name, metricSink, onSuccessAsync, onExceptionAsync);
       }

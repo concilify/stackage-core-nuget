@@ -31,9 +31,8 @@ namespace Stackage.Core.Middleware
             return;
          }
 
-         await metricSink.PushAsync(new Counter
+         await metricSink.PushAsync(new Counter("not_ready")
          {
-            Name = "not_ready",
             Dimensions = new Dictionary<string, object> {{"method", context.Request.Method}}
          });
 

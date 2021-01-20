@@ -1,9 +1,9 @@
-using System.Collections.Generic;
+using System;
 
 namespace Stackage.Core.Middleware.Options
 {
    public class BasePathRewritingOptions
    {
-      public IList<BasePathRewriteRule> Rules { get; set; }
+      public BasePathRewriteRule[] Rules { get; set; } = Array.Empty<BasePathRewriteRule>();
    }
 }

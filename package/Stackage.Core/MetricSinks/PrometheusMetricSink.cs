@@ -75,9 +75,11 @@ namespace Stackage.Core.MetricSinks
       {
          foreach (var metric in _options.Metrics)
          {
+            if (metric.Name == null) continue;
+
             if (metric.Type == "Counter")
             {
-               var counter = Metrics.CreateCounter(metric.Name, metric.Description,
+               var counter = Metrics.CreateCounter(metric.Name, metric.Description ?? string.Empty,
                   new CounterConfiguration
                   {
                      LabelNames = metric.Labels
@@ -87,7 +89,7 @@ namespace Stackage.Core.MetricSinks
             }
             else if (metric.Type == "Histogram")
             {
-               var histogram = Metrics.CreateHistogram(metric.Name, metric.Description,
+               var histogram = Metrics.CreateHistogram(metric.Name, metric.Description ?? string.Empty,
                   new HistogramConfiguration
                   {
                      LabelNames = metric.Labels,
@@ -105,7 +107,7 @@ namespace Stackage.Core.MetricSinks
          {
             foreach (var sanitiser in metric.Sanitisers)
             {
-               if (!metric.Labels.Contains(sanitiser.Label))
+               if (!metric.Labels.Contains(sanitiser.Label) || sanitiser.Value == null)
                {
                   continue;
                }
@@ -119,12 +121,14 @@ namespace Stackage.Core.MetricSinks
                   _sanitisers.Add(nameAndLabel, patterns);
                }
 
-               patterns.Add(new Sanitiser
+               if (sanitiser.Literal != null)
                {
-                  Literal = sanitiser.Literal,
-                  Pattern = sanitiser.Pattern != null ? new Regex(sanitiser.Pattern) : null,
-                  Value = sanitiser.Value
-               });
+                  patterns.Add(Sanitiser.ForLiteral(sanitiser.Literal, sanitiser.Value));
+               }
+               else if (sanitiser.Pattern != null)
+               {
+                  patterns.Add(Sanitiser.ForPattern(sanitiser.Pattern, sanitiser.Value));
+               }
             }
          }
       }
@@ -135,7 +139,7 @@ namespace Stackage.Core.MetricSinks
          {
             if (metric.Dimensions.TryGetValue(name, out var value))
             {
-               var labelValue = value.ToString();
+               var labelValue = value.ToString() ?? string.Empty;
 
                if (_sanitisers.TryGetValue($"{metric.Name}:{name}", out var sanitisers))
                {
@@ -172,15 +176,28 @@ namespace Stackage.Core.MetricSinks
 
       private class Sanitiser
       {
-         public string Literal { get; set; }
+         private readonly Func<string, bool> _match;
 
-         public Regex Pattern { get; set; }
-
-         public string Value { get; set; }
-
-         public bool Match(string value)
+         private Sanitiser(Func<string, bool> match, string value)
          {
-            return Literal != null && value == Literal || Pattern != null && Pattern.IsMatch(value);
+            _match = match;
+            Value = value;
+         }
+
+         public string Value { get; }
+
+         public bool Match(string value) => _match(value);
+
+         public static Sanitiser ForLiteral(string literal, string value)
+         {
+            return new(v => v == literal, value);
+         }
+
+         public static Sanitiser ForPattern(string pattern, string value)
+         {
+            var regex = new Regex(pattern);
+
+            return new(v => regex.IsMatch(v), value);
          }
       }
    }

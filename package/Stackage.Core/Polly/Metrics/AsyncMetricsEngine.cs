@@ -16,15 +16,14 @@ namespace Stackage.Core.Polly.Metrics
          CancellationToken cancellationToken,
          string name,
          IMetricSink metricSink,
-         Func<Context, TResult, Task> onSuccessAsync,
-         Func<Context, Exception, Task> onExceptionAsync,
+         Func<Context, TResult, Task>? onSuccessAsync,
+         Func<Context, Exception, Task>? onExceptionAsync,
          bool continueOnCapturedContext)
       {
          cancellationToken.ThrowIfCancellationRequested();
 
-         await metricSink.PushAsync(new Counter
+         await metricSink.PushAsync(new Counter($"{name}_start")
          {
-            Name = $"{name}_start",
             Dimensions = context.ToDictionary(c => c.Key, c => c.Value)
          });
 
@@ -48,9 +47,8 @@ namespace Stackage.Core.Polly.Metrics
          }
          finally
          {
-            await metricSink.PushAsync(new Gauge
+            await metricSink.PushAsync(new Gauge($"{name}_end")
             {
-               Name = $"{name}_end",
                Dimensions = context.ToDictionary(c => c.Key, c => c.Value),
                Value = stopwatch.ElapsedMilliseconds
             });

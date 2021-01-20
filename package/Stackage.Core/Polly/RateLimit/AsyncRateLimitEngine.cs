@@ -13,7 +13,7 @@ namespace Stackage.Core.Polly.RateLimit
          Context context,
          CancellationToken cancellationToken,
          IRateLimiter rateLimiter,
-         Func<Context, Exception, Task> onRejectionAsync,
+         Func<Context, Exception, Task>? onRejectionAsync,
          bool continueOnCapturedContext)
       {
          cancellationToken.ThrowIfCancellationRequested();
