@@ -16,6 +16,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Pack
-      run: dotnet pack --configuration Release --version-suffix=ci --output . package/Stackage.Core/Stackage.Core.csproj
+      run: dotnet pack --configuration Release -p=0.0.0-ci --output . package/Stackage.Core/Stackage.Core.csproj
     - name: Test
       run: dotnet test --configuration Release package/Stackage.Core.Tests/Stackage.Core.Tests.csproj
