@@ -4,7 +4,7 @@ namespace Stackage.Core.MetricSinks
 {
    public class PrometheusOptions
    {
-      public int BufferCapacity { get; set; } = 100;
+      public int BufferCapacity { get; set; } = 10000;
 
       public string SanitiserFallback { get; set; } = "*";
 

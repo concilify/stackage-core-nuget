@@ -15,7 +15,7 @@ jobs:
     - name: Set VERSION
       run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
     - name: Pack
-      run: dotnet pack --configuration Release /p:Version=${VERSION} --output . package/Stackage.Core/Stackage.Core.csproj
+      run: dotnet pack --configuration Release -p:Version=${VERSION} --output . package/Stackage.Core/Stackage.Core.csproj
     - name: Push
       run: dotnet nuget push Stackage.Core.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_PUSH_TOKEN}
       env:

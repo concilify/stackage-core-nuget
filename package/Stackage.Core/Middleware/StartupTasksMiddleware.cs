@@ -36,7 +36,7 @@ namespace Stackage.Core.Middleware
             Dimensions = new Dictionary<string, object> {{"method", context.Request.Method}}
          });
 
-         logger.LogWarning("Unable to fulfill request {@path}", context.Request.Path);
+         logger.LogWarning("Unable to fulfill request {@path}", context.Request.Path.ToString());
 
          await context.Response.WriteServiceUnavailableAsync();
       }
