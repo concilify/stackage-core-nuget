@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Stackage.Core.Abstractions;
 using Stackage.Core.Extensions;
-using Stackage.Core.Middleware.Options;
+using Stackage.Core.Options;
 
 namespace Stackage.Core.Middleware
 {

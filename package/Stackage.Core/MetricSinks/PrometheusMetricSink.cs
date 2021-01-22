@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Prometheus;
 using Stackage.Core.Abstractions.Metrics;
+using Stackage.Core.Options;
 using Counter = Prometheus.Counter;
 using Gauge = Stackage.Core.Abstractions.Metrics.Gauge;
 
