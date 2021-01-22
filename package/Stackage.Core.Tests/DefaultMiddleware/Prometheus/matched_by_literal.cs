@@ -24,6 +24,8 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Prometheus
          {
             await TestService.GetAsync(server, "/replace-this");
 
+            await Task.Delay(100);
+
             _response = await TestService.GetAsync(server, "/metrics");
             _content = await _response.Content.ReadAsStringAsync();
          }

@@ -40,7 +40,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
 
          response["durationMs"].Value<int>().ShouldBeInRange(50, 150);
          response["dependencies"][0]["durationMs"].Value<int>().ShouldBeInRange(0, 30);
-         response["dependencies"][1]["durationMs"].Value<int>().ShouldBeInRange(50, 150);
+         response["dependencies"][1]["durationMs"].Value<int>().ShouldBeInRange(50, 300);
       }
    }
 }

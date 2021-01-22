@@ -25,6 +25,8 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Prometheus
             await TestService.GetAsync(server, "/tenant-a/bar/get");
             await TestService.GetAsync(server, "/tenant-b/bar/get");
 
+            await Task.Delay(100);
+
             _response = await TestService.GetAsync(server, "/metrics");
             _content = await _response.Content.ReadAsStringAsync();
          }
