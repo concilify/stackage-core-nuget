@@ -24,9 +24,9 @@ namespace Stackage.Core.Options
 
          public string[] Labels { get; set; } = Array.Empty<string>();
 
-         public double[] Buckets { get; set; } = Array.Empty<double>();
+         public double[]? Buckets { get; set; }
 
-         public Sanitiser[] Sanitisers { get; set; } = Array.Empty<Sanitiser>();
+         public Sanitiser[]? Sanitisers { get; set; }
       }
 
       public class Sanitiser

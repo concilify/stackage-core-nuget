@@ -76,8 +76,6 @@ namespace Stackage.Core.MetricSinks
       {
          foreach (var metric in _options.Metrics)
          {
-            if (metric.Name == null) continue;
-
             if (metric.Type == "Counter")
             {
                var counter = Metrics.CreateCounter(metric.Name, metric.Description ?? string.Empty,
@@ -106,9 +104,14 @@ namespace Stackage.Core.MetricSinks
       {
          foreach (var metric in _options.Metrics)
          {
+            if (metric.Sanitisers == null)
+            {
+               continue;
+            }
+
             foreach (var sanitiser in metric.Sanitisers)
             {
-               if (!metric.Labels.Contains(sanitiser.Label) || sanitiser.Value == null)
+               if (!metric.Labels.Contains(sanitiser.Label))
                {
                   continue;
                }
