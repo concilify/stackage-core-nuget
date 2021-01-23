@@ -31,13 +31,12 @@ namespace Stackage.Core.Middleware
             return;
          }
 
-         await metricSink.PushAsync(new Counter
+         await metricSink.PushAsync(new Counter("not_ready")
          {
-            Name = "not_ready",
             Dimensions = new Dictionary<string, object> {{"method", context.Request.Method}}
          });
 
-         logger.LogWarning("Unable to fulfill request {@path}", context.Request.Path);
+         logger.LogWarning("Unable to fulfill request {@path}", context.Request.Path.ToString());
 
          await context.Response.WriteServiceUnavailableAsync();
       }

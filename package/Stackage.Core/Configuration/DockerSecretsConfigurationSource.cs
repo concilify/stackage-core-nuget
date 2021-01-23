@@ -4,7 +4,7 @@ namespace Stackage.Core.Configuration
 {
    public class DockerSecretsConfigurationSource : IConfigurationSource
    {
-      public string Prefix { get; set; }
+      public string Prefix { get; set; } = string.Empty;
 
       public IConfigurationProvider Build(IConfigurationBuilder builder)
       {

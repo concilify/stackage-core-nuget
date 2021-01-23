@@ -7,6 +7,8 @@ namespace Stackage.Core
 {
    public class ServiceInfo : IServiceInfo
    {
+      private const string Unknown = "(Unknown)";
+
       private readonly IHttpContextAccessor _httpContextAccessor;
 
       public ServiceInfo(IHttpContextAccessor httpContextAccessor)
@@ -14,20 +16,10 @@ namespace Stackage.Core
          _httpContextAccessor = httpContextAccessor;
       }
 
-      public string Service { get; } = Assembly.GetEntryAssembly().GetName().Name;
+      public string Service { get; } = Assembly.GetEntryAssembly()?.GetName().Name ?? Unknown;
 
-      public string Version { get; } = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+      public string Version { get; } = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? Unknown;
 
       public string Host { get; } = Environment.MachineName;
-
-      public string BaseAddress
-      {
-         get
-         {
-            var request = _httpContextAccessor.HttpContext.Request;
-
-            return $"{request.Scheme}://{request.Host}{request.PathBase}";
-         }
-      }
    }
 }

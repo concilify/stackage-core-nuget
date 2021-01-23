@@ -13,7 +13,7 @@ using Stackage.Core.Abstractions.Polly;
 using Stackage.Core.Abstractions.StartupTasks;
 using Stackage.Core.Health;
 using Stackage.Core.MetricSinks;
-using Stackage.Core.Middleware.Options;
+using Stackage.Core.Options;
 using Stackage.Core.Polly;
 using Stackage.Core.StartupTasks;
 
@@ -44,7 +44,6 @@ namespace Stackage.Core.Extensions
          services.Configure<StackageOptions>(stackageConfiguration);
          services.Configure<HealthOptions>(stackageConfiguration.GetSection("health"));
          services.Configure<RateLimitingOptions>(stackageConfiguration.GetSection("ratelimiting"));
-         services.Configure<BasePathRewritingOptions>(stackageConfiguration.GetSection("basepathrewriting"));
          services.Configure<PrometheusOptions>(stackageConfiguration.GetSection("prometheus"));
 
          services.Configure<ForwardedHeadersOptions>(options =>
@@ -83,7 +82,7 @@ namespace Stackage.Core.Extensions
             var healthCheck = healthCheckFactory(sp);
             var registration = new HealthCheckRegistration(name, healthCheck, null, null);
 
-            return new ConfigureNamedOptions<HealthCheckServiceOptions>(Options.DefaultName, options => options.Registrations.Add(registration));
+            return new ConfigureNamedOptions<HealthCheckServiceOptions>(Microsoft.Extensions.Options.Options.DefaultName, options => options.Registrations.Add(registration));
          });
 
          return services;
@@ -98,7 +97,7 @@ namespace Stackage.Core.Extensions
             var healthCheck = (IHealthCheck) ActivatorUtilities.CreateInstance(sp, typeof(THealthCheck));
             var registration = new HealthCheckRegistration(name, healthCheck, null, null);
 
-            return new ConfigureNamedOptions<HealthCheckServiceOptions>(Options.DefaultName, options => options.Registrations.Add(registration));
+            return new ConfigureNamedOptions<HealthCheckServiceOptions>(Microsoft.Extensions.Options.Options.DefaultName, options => options.Registrations.Add(registration));
          });
 
          return services;

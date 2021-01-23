@@ -10,7 +10,7 @@ namespace Stackage.Core.Extensions
       {
          var cancellationTaskSource = new TaskCompletionSource<bool>();
 
-         using (cancellationToken.Register(s => s.TrySetResult(true), cancellationTaskSource))
+         using (cancellationToken.RegisterAction(s => s.TrySetResult(true), cancellationTaskSource))
          {
             if (task != await Task.WhenAny(task, cancellationTaskSource.Task))
             {
@@ -21,9 +21,18 @@ namespace Stackage.Core.Extensions
          }
       }
 
-      private static IDisposable Register<T>(this CancellationToken cancellationToken, Action<T> action, T state)
+      private static IDisposable RegisterAction(
+         this CancellationToken cancellationToken,
+         Action<TaskCompletionSource<bool>> action,
+         TaskCompletionSource<bool> state)
       {
-         return cancellationToken.Register(s => { action((T) s); }, state);
+         return cancellationToken.Register(s =>
+         {
+            if (s != null)
+            {
+               action((TaskCompletionSource<bool>) s);
+            }
+         }, state);
       }
    }
 }

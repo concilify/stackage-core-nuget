@@ -32,7 +32,7 @@ namespace Stackage.Core.Polly.RateLimit
          _timer = new Timer(TimerCallback, null, timerPeriodMs, timerPeriodMs);
       }
 
-      private void TimerCallback(object state)
+      private void TimerCallback(object? state)
       {
          var maxNewTokens = _burstSize - _tokenBucket.CurrentCount;
          var newTokens = Math.Min(maxNewTokens, _newTokensPerTimerCallback);

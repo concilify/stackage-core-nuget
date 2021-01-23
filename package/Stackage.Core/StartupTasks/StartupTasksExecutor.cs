@@ -15,7 +15,7 @@ namespace Stackage.Core.StartupTasks
 
       private int _outstandingTasks;
       private int _failedTasks;
-      private Task _allTasksCompleted;
+      private Task? _allTasksCompleted;
 
       public StartupTasksExecutor(
          IEnumerable<IStartupTask> startupTasks,

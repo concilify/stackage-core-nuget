@@ -6,7 +6,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Stackage.Core.Abstractions.StartupTasks;
 using Stackage.Core.Extensions;
-using Stackage.Core.Middleware.Options;
+using Stackage.Core.Options;
 
 namespace Stackage.Core.Middleware
 {

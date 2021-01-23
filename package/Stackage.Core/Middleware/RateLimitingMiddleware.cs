@@ -7,7 +7,7 @@ using Polly;
 using Stackage.Core.Abstractions.Polly;
 using Stackage.Core.Abstractions.Polly.RateLimit;
 using Stackage.Core.Extensions;
-using Stackage.Core.Middleware.Options;
+using Stackage.Core.Options;
 using Stackage.Core.Polly.RateLimit;
 
 namespace Stackage.Core.Middleware

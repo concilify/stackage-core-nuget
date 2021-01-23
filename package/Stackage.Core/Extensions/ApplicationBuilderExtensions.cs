@@ -4,8 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Prometheus;
+using Stackage.Core.MetricSinks;
 using Stackage.Core.Middleware;
-using Stackage.Core.Middleware.Options;
+using Stackage.Core.Options;
 
 namespace Stackage.Core.Extensions
 {
@@ -21,20 +22,19 @@ namespace Stackage.Core.Extensions
          );
       }
 
-      public static IApplicationBuilder UseDefaultMiddleware(this IApplicationBuilder app, IHostEnvironment environment)
+      public static IApplicationBuilder UseDefaultMiddleware(this IApplicationBuilder app)
       {
          if (app == null) throw new ArgumentNullException(nameof(app));
-         if (environment == null) throw new ArgumentNullException(nameof(environment));
-
-         app.UseMiddleware<BasePathRewritingMiddleware>();
 
          var stackageOptions = app.ApplicationServices.GetRequiredService<IOptions<StackageOptions>>().Value;
+         var prometheusOptions = app.ApplicationServices.GetRequiredService<IOptions<PrometheusOptions>>().Value;
 
-         if (stackageOptions.RunningBehindProxy)
+         if (stackageOptions.ForwardHeaders)
          {
-            app.UseForwardedHeaders();
+            app = app.UseForwardedHeaders();
          }
-         else if (!environment.IsDevelopment())
+
+         if (stackageOptions.SupportHttps)
          {
             app = app
                .UseHttpsRedirection()
@@ -43,7 +43,7 @@ namespace Stackage.Core.Extensions
 
          return app
             .UseMiddleware<LivenessMiddleware>()
-            .UseMetricServer("/metrics")
+            .UseMetricServer(prometheusOptions.MetricsEndpoint)
             .UseMiddleware<ReadinessMiddleware>()
             .UseMiddleware<StartupTasksMiddleware>()
             .UseMiddleware<MetricsAndExceptionHandlingMiddleware>()

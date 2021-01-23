@@ -23,8 +23,8 @@ namespace Stackage.Core.Health
       }
 
       public override async Task<HealthReport> CheckHealthAsync(
-         Func<HealthCheckRegistration, bool> predicate,
-         CancellationToken cancellationToken = new CancellationToken())
+         Func<HealthCheckRegistration, bool>? predicate,
+         CancellationToken cancellationToken = default)
       {
          using (var scope = _scopeFactory.CreateScope())
          {

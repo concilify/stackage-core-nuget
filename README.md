@@ -1,11 +1,11 @@
-# core
+# stackage-core-nuget
 
 ## Deployment Concerns
 
 ### Prerequisites
 
-A NuGet API key with `write:packages` must have been added to Stackage / Project settings / Service connections in order for DevOps to be able to push NuGet packages.
+A secret named `NUGET_PUSH_TOKEN` containing a NuGet API key must have been added in order for GitHub Actions to be able to push NuGet packages
 
 ### Releasing
 
-Tag the commit in the `master` branch that you wish to release with format `v*.*.*`. DevOps will build this version and push the package to NuGet. Use format `v*.*.*-preview***` to build a pre-release NuGet package.
+Tag the commit in the `main` branch that you wish to release with format `v*.*.*`. GitHub Actions will build this version and push the package to NuGet. Use format `v*.*.*-preview***` to build a pre-release NuGet package.

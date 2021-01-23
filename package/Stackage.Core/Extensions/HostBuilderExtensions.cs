@@ -38,7 +38,7 @@ namespace Stackage.Core.Extensions
 
       private static string GetExeDirectory()
       {
-         return Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location ?? Directory.GetCurrentDirectory());
+         return Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location ?? Directory.GetCurrentDirectory())!;
       }
    }
 }

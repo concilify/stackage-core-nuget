@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Stackage.Core.Abstractions;
 using Stackage.Core.Extensions;
-using Stackage.Core.Middleware.Options;
+using Stackage.Core.Options;
 
 namespace Stackage.Core.Middleware
 {
@@ -74,7 +74,7 @@ namespace Stackage.Core.Middleware
          };
       }
 
-      private static object GetDependencies(HealthReport healthReport)
+      private static object? GetDependencies(HealthReport healthReport)
       {
          if (healthReport.Entries == null || healthReport.Entries.Count == 0)
          {
@@ -99,12 +99,12 @@ namespace Stackage.Core.Middleware
          };
       }
 
-      private static object GetException(HealthReportEntry entry)
+      private static object? GetException(HealthReportEntry entry)
       {
          return entry.Exception?.GetType().FullName;
       }
 
-      private static object GetData(HealthReportEntry entry)
+      private static object? GetData(HealthReportEntry entry)
       {
          if (entry.Data == null || entry.Data.Count == 0)
          {

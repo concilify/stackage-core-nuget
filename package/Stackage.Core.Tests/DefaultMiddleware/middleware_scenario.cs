@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Stackage.Core.Abstractions;
@@ -69,9 +68,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware
 
       protected virtual void Configure(IApplicationBuilder app)
       {
-         var hostEnvironment = app.ApplicationServices.GetRequiredService<IHostEnvironment>();
-
-         app.UseDefaultMiddleware(hostEnvironment);
+         app.UseDefaultMiddleware();
       }
    }
 }
