@@ -107,23 +107,16 @@ namespace Stackage.Core.Extensions
       public static IServiceCollection AddGenericImplementations(
          this IServiceCollection services,
          Type genericServiceType,
-         ITypeEnumerator candidateTypes,
+         ITypeEnumerator discoverFromTypes,
          ServiceLifetime lifetime)
       {
-         var implementations = candidateTypes.Types
-            .Where(t => !t.IsAbstract && !t.IsInterface)
-            .Select(t => new
-            {
-               Type = t,
-               ServiceTypes = t.GetInterfaces().Where(c => c.IsGenericType && c.GetGenericTypeDefinition() == genericServiceType).ToArray()
-            })
-            .Where(c => c.ServiceTypes.Length != 0);
+         var implementations = discoverFromTypes.GetGenericImplementations(genericServiceType);
 
          foreach (var implementation in implementations)
          {
-            foreach (var serviceType in implementation.ServiceTypes)
+            foreach (var service in implementation.Services)
             {
-               services.Add(new ServiceDescriptor(serviceType, implementation.Type, lifetime));
+               services.Add(new ServiceDescriptor(service.ServiceType, implementation.ImplementationType, lifetime));
             }
          }
 
