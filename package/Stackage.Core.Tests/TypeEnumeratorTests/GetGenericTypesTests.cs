@@ -1,13 +1,12 @@
 using System;
 using FluentAssertions;
 using NUnit.Framework;
-using Stackage.Core.Extensions;
 using Stackage.Core.Tests.TestTypes;
 using Stackage.Core.TypeEnumerators;
 
 namespace Stackage.Core.Tests.TypeEnumeratorTests
 {
-   public class GetGenericImplementationsTests
+   public class GetGenericTypesTests
    {
       private readonly Type[] _availableTypes = new[]
       {
@@ -23,7 +22,7 @@ namespace Stackage.Core.Tests.TypeEnumeratorTests
       {
          var discoverFromTypes = new EnumerateTypes(_availableTypes);
 
-         var result = discoverFromTypes.GetGenericImplementations(typeof(IDoSomethingWith<>));
+         var result = discoverFromTypes.GetGenericTypes(typeof(IDoSomethingWith<>));
 
          result.Should().BeEquivalentTo(new object[]
          {
@@ -40,7 +39,7 @@ namespace Stackage.Core.Tests.TypeEnumeratorTests
       {
          var discoverFromTypes = new EnumerateTypes(_availableTypes);
 
-         var result = discoverFromTypes.GetGenericImplementations(typeof(IDoSomethingElseWith<>));
+         var result = discoverFromTypes.GetGenericTypes(typeof(IDoSomethingElseWith<>));
 
          result.Should().BeEquivalentTo(new object[]
          {
@@ -54,7 +53,7 @@ namespace Stackage.Core.Tests.TypeEnumeratorTests
       {
          var discoverFromTypes = new EnumerateTypes(_availableTypes);
 
-         Assert.That(() => discoverFromTypes.GetGenericImplementations(typeof(Foo)), Throws.ArgumentException);
+         Assert.That(() => discoverFromTypes.GetGenericTypes(typeof(Foo)), Throws.ArgumentException);
       }
 
       [Test]
@@ -62,7 +61,7 @@ namespace Stackage.Core.Tests.TypeEnumeratorTests
       {
          var discoverFromTypes = new EnumerateTypes(_availableTypes);
 
-         Assert.That(() => discoverFromTypes.GetGenericImplementations(typeof(IDoSomethingWith<Foo>)), Throws.ArgumentException);
+         Assert.That(() => discoverFromTypes.GetGenericTypes(typeof(IDoSomethingWith<Foo>)), Throws.ArgumentException);
       }
    }
 }

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace Stackage.Core.TypeEnumerators
 {
-   public class EnumerateTypesFromAssemblyOf<T> : ITypeEnumerator
+   public class EnumerateTypesFromAssemblyOf<T> : TypeEnumeratorBase
    {
-      public IEnumerable<Type> Types => typeof(T).Assembly.GetTypes();
+      public override IEnumerable<Type> Types => typeof(T).Assembly.GetTypes();
    }
 }

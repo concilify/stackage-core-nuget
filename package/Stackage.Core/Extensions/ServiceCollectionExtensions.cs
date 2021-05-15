@@ -110,7 +110,7 @@ namespace Stackage.Core.Extensions
          ITypeEnumerator discoverFromTypes,
          ServiceLifetime lifetime)
       {
-         var implementations = discoverFromTypes.GetGenericImplementations(genericServiceType);
+         var implementations = discoverFromTypes.GetGenericTypes(genericServiceType);
 
          foreach (var implementation in implementations)
          {

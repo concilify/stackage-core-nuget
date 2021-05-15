@@ -4,8 +4,8 @@ using System.Linq;
 
 namespace Stackage.Core.TypeEnumerators
 {
-   public class EnumerateTypesFromCurrentAppDomain : ITypeEnumerator
+   public class EnumerateTypesFromCurrentAppDomain : TypeEnumeratorBase
    {
-      public IEnumerable<Type> Types => AppDomain.CurrentDomain.GetAssemblies().SelectMany(c => c.GetTypes());
+      public override IEnumerable<Type> Types => AppDomain.CurrentDomain.GetAssemblies().SelectMany(c => c.GetTypes());
    }
 }

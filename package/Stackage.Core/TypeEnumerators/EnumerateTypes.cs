@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Stackage.Core.TypeEnumerators
 {
-   public class EnumerateTypes : ITypeEnumerator
+   public class EnumerateTypes : TypeEnumeratorBase
    {
       private readonly Type[] _types;
 
@@ -12,6 +12,6 @@ namespace Stackage.Core.TypeEnumerators
          _types = types;
       }
 
-      public IEnumerable<Type> Types => _types;
+      public override IEnumerable<Type> Types => _types;
    }
 }
