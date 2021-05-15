@@ -10,6 +10,7 @@ using Stackage.Core.Abstractions.Metrics;
 using Stackage.Core.Extensions;
 using Stackage.Core.Middleware;
 using Stackage.Core.StartupTasks;
+using Stackage.Core.SystemTextJson;
 
 namespace Stackage.Core.Tests.DefaultMiddleware
 {
@@ -59,6 +60,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware
 
          services.AddSingleton(TokenGenerator);
          services.AddSingleton(ServiceInfo);
+         services.AddSingleton<IJsonSerialiser>(new SystemTextJsonSerialiser());
          services.AddSingleton<IMetricSink>(MetricSink);
          services.AddSingleton<ILogger<MetricsAndExceptionHandlingMiddleware>>(Logger);
          services.AddSingleton<ILogger<StartupTasksExecutor>>(StartupTasksExecutorLogger);

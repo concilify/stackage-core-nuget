@@ -12,7 +12,7 @@ namespace Stackage.Core.SystemTextJson
    {
       private readonly JsonSerializerOptions _options;
 
-      public SystemTextJsonSerialiser(IEnumerable<JsonConverter> converters)
+      public SystemTextJsonSerialiser(IEnumerable<JsonConverter>? converters = null)
       {
          _options = new JsonSerializerOptions
          {
@@ -22,9 +22,12 @@ namespace Stackage.Core.SystemTextJson
 
          _options.Converters.Add(new ObjectToInferredTypesConverter());
 
-         foreach (var converter in converters)
+         if (converters != null)
          {
-            _options.Converters.Add(converter);
+            foreach (var converter in converters)
+            {
+               _options.Converters.Add(converter);
+            }
          }
       }
 

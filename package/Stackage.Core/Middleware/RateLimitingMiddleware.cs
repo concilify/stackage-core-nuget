@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Polly;
+using Stackage.Core.Abstractions;
 using Stackage.Core.Abstractions.Polly;
 using Stackage.Core.Abstractions.Polly.RateLimit;
 using Stackage.Core.Extensions;
@@ -16,31 +17,19 @@ namespace Stackage.Core.Middleware
    public class RateLimitingMiddleware
    {
       private readonly RequestDelegate _next;
-      private readonly Func<HttpContext, Task> _invokeDelegateAsync;
+      private readonly RateLimiter? _rateLimiter;
 
       public RateLimitingMiddleware(
          RequestDelegate next,
-         IOptions<RateLimitingOptions> options,
-         IPolicyFactory policyFactory)
+         IOptions<RateLimitingOptions> options)
       {
          if (options == null) throw new ArgumentNullException(nameof(options));
-         if (policyFactory == null) throw new ArgumentNullException(nameof(policyFactory));
 
          _next = next ?? throw new ArgumentNullException(nameof(next));
 
          var rateLimitingOptions = options.Value;
 
-         if (rateLimitingOptions.Enabled)
-         {
-            var rateLimiter = CreateRateLimiter(rateLimitingOptions);
-            var rateLimitPolicy = policyFactory.CreateAsyncRateLimitPolicy(rateLimiter);
-
-            _invokeDelegateAsync = (context) => InvokeWithRateLimiting(context, rateLimitPolicy);
-         }
-         else
-         {
-            _invokeDelegateAsync = (context) => _next(context);
-         }
+         _rateLimiter = rateLimitingOptions.Enabled ? CreateRateLimiter(rateLimitingOptions) : null;
       }
 
       private static RateLimiter CreateRateLimiter(RateLimitingOptions options)
@@ -53,20 +42,32 @@ namespace Stackage.Core.Middleware
          return rateLimiter;
       }
 
-      public async Task Invoke(HttpContext context)
+      public async Task Invoke(
+         HttpContext context,
+         IPolicyFactory policyFactory,
+         IJsonSerialiser jsonSerialiser)
       {
-         await _invokeDelegateAsync(context);
+         if (_rateLimiter != null)
+         {
+            await InvokeWithRateLimitingAsync(context, policyFactory, jsonSerialiser);
+         }
+         else
+         {
+            await _next(context);
+         }
       }
 
-      private async Task InvokeWithRateLimiting(HttpContext context, IAsyncPolicy rateLimitPolicy)
+      private async Task InvokeWithRateLimitingAsync(HttpContext context, IPolicyFactory policyFactory, IJsonSerialiser jsonSerialiser)
       {
+         var rateLimitPolicy = policyFactory.CreateAsyncRateLimitPolicy(_rateLimiter!);
+
          try
          {
             await rateLimitPolicy.ExecuteAsync(() => _next(context));
          }
          catch (RateLimitRejectionException)
          {
-            await context.Response.WriteJsonAsync((HttpStatusCode) 429, new {message = "Too Many Requests"});
+            await context.Response.WriteJsonAsync((HttpStatusCode) 429, new {message = "Too Many Requests"}, jsonSerialiser);
          }
       }
    }

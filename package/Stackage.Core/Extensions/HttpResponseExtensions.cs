@@ -3,7 +3,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
-using Newtonsoft.Json;
+using Stackage.Core.Abstractions;
 
 namespace Stackage.Core.Extensions
 {
@@ -17,20 +17,12 @@ namespace Stackage.Core.Extensions
          await response.WriteAsync(content, Encoding.UTF8);
       }
 
-      public static async Task WriteJsonAsync(this HttpResponse response, HttpStatusCode statusCode, object content)
+      public static async Task WriteJsonAsync(this HttpResponse response, HttpStatusCode statusCode, object content, IJsonSerialiser jsonSerialiser)
       {
          response.StatusCode = (int) statusCode;
          response.ContentType = "application/json";
 
-         await response.WriteAsync(JsonConvert.SerializeObject(content), Encoding.UTF8);
-      }
-
-      public static async Task WriteJsonAsync(this HttpResponse response, HttpStatusCode statusCode, object content, JsonSerializerSettings settings)
-      {
-         response.StatusCode = (int) statusCode;
-         response.ContentType = "application/json";
-
-         await response.WriteAsync(JsonConvert.SerializeObject(content, settings), Encoding.UTF8);
+         await response.WriteAsync(jsonSerialiser.Serialise(content), Encoding.UTF8);
       }
 
       public static async Task WriteServiceUnavailableAsync(this HttpResponse response)

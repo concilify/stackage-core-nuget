@@ -17,26 +17,19 @@ namespace Stackage.Core.Middleware
    public class MetricsAndExceptionHandlingMiddleware
    {
       private readonly RequestDelegate _next;
-      private readonly IPolicyFactory _policyFactory;
-      private readonly IMetricSink _metricSink;
-      private readonly ITokenGenerator _tokenGenerator;
-      private readonly ILogger<MetricsAndExceptionHandlingMiddleware> _logger;
 
-      public MetricsAndExceptionHandlingMiddleware(
-         RequestDelegate next,
+      public MetricsAndExceptionHandlingMiddleware(RequestDelegate next)
+      {
+         _next = next ?? throw new ArgumentNullException(nameof(next));
+      }
+
+      public async Task Invoke(
+         HttpContext httpContext,
          IPolicyFactory policyFactory,
          IMetricSink metricSink,
          ITokenGenerator tokenGenerator,
+         IJsonSerialiser jsonSerialiser,
          ILogger<MetricsAndExceptionHandlingMiddleware> logger)
-      {
-         _next = next ?? throw new ArgumentNullException(nameof(next));
-         _policyFactory = policyFactory ?? throw new ArgumentNullException(nameof(policyFactory));
-         _metricSink = metricSink ?? throw new ArgumentNullException(nameof(metricSink));
-         _tokenGenerator = tokenGenerator ?? throw new ArgumentNullException(nameof(tokenGenerator));
-         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-      }
-
-      public async Task Invoke(HttpContext httpContext)
       {
          Task OnSuccessAsync(Context policyContext)
          {
@@ -44,7 +37,7 @@ namespace Stackage.Core.Middleware
             return Task.CompletedTask;
          }
 
-         var metricsPolicy = _policyFactory.CreateAsyncMetricsPolicy("http_request", _metricSink, onSuccessAsync: OnSuccessAsync);
+         var metricsPolicy = policyFactory.CreateAsyncMetricsPolicy("http_request", metricSink, onSuccessAsync: OnSuccessAsync);
 
          var dimensions = new Dictionary<string, object>
          {
@@ -52,10 +45,15 @@ namespace Stackage.Core.Middleware
             {"path", $"{httpContext.Request.PathBase}{httpContext.Request.Path}"}
          };
 
-         await metricsPolicy.ExecuteAsync(policyContext => Invoke(httpContext, policyContext), dimensions);
+         await metricsPolicy.ExecuteAsync(policyContext => InvokeAsync(httpContext, policyContext, tokenGenerator, jsonSerialiser, logger), dimensions);
       }
 
-      private async Task Invoke(HttpContext httpContext, Context policyContext)
+      private async Task InvokeAsync(
+         HttpContext httpContext,
+         Context policyContext,
+         ITokenGenerator tokenGenerator,
+         IJsonSerialiser jsonSerialiser,
+         ILogger<MetricsAndExceptionHandlingMiddleware> logger)
       {
          try
          {
@@ -63,25 +61,25 @@ namespace Stackage.Core.Middleware
          }
          catch (OperationCanceledException) when (httpContext.RequestAborted.IsCancellationRequested)
          {
-            await httpContext.Response.WriteJsonAsync((HttpStatusCode) 499, new {message = "Client Closed Request"});
+            await httpContext.Response.WriteJsonAsync((HttpStatusCode) 499, new {message = "Client Closed Request"}, jsonSerialiser);
          }
          catch (AuthenticationException e)
          {
-            var token = _tokenGenerator.Generate();
+            var token = tokenGenerator.Generate();
 
-            _logger.LogWarning(e, "An authentication exception has occurred (token={token})", token);
+            logger.LogWarning(e, "An authentication exception has occurred (token={token})", token);
 
-            await httpContext.Response.WriteJsonAsync(HttpStatusCode.Unauthorized, new {message = "Unauthorized", token});
+            await httpContext.Response.WriteJsonAsync(HttpStatusCode.Unauthorized, new {message = "Unauthorized", token}, jsonSerialiser);
          }
          catch (Exception e)
          {
-            var token = _tokenGenerator.Generate();
+            var token = tokenGenerator.Generate();
 
-            _logger.LogError(e, "An unexpected exception has occurred (token={token})", token);
+            logger.LogError(e, "An unexpected exception has occurred (token={token})", token);
 
             policyContext.Add("exception", e.GetType().Name);
 
-            await httpContext.Response.WriteJsonAsync(HttpStatusCode.InternalServerError, new {message = "Internal Server Error", token});
+            await httpContext.Response.WriteJsonAsync(HttpStatusCode.InternalServerError, new {message = "Internal Server Error", token}, jsonSerialiser);
          }
       }
    }
