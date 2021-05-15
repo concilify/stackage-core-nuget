@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -16,7 +15,6 @@ using Stackage.Core.MetricSinks;
 using Stackage.Core.Options;
 using Stackage.Core.Polly;
 using Stackage.Core.StartupTasks;
-using Stackage.Core.TypeEnumerators;
 
 namespace Stackage.Core.Extensions
 {
@@ -36,6 +34,7 @@ namespace Stackage.Core.Extensions
          services.AddSingleton<IMetricSink>(sp => sp.GetRequiredService<PrometheusMetricSink>());
 
          services.AddTransient<IGuidGenerator, GuidGenerator>();
+         services.AddTransient<ITokenGenerator, TokenGenerator>();
          services.AddTransient<IServiceInfo, ServiceInfo>();
          services.AddTransient<HealthCheckService, StackageHealthCheckService>();
          services.AddTransient<IPolicyFactory, PolicyFactory>();

@@ -19,6 +19,13 @@ EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stackage.Core.SystemTextJson", "package\Stackage.Core.SystemTextJson\Stackage.Core.SystemTextJson.csproj", "{EA12EC16-8411-44B4-A2A1-FD2A1F68CCC4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{FE3396FA-295F-449A-B9DC-288D9DFFB4F6}"
+ProjectSection(SolutionItems) = preProject
+	.github\workflows\ci.yml = .github\workflows\ci.yml
+	.github\workflows\release.yml = .github\workflows\release.yml
+	.github\workflows\release-preview.yml = .github\workflows\release-preview.yml
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,5 +80,6 @@ Global
 		{D5368C38-097B-492B-8860-B145A1C9F6A9} = {174962E8-07BC-43F0-8ACC-30DD544AD1BD}
 		{FD94F937-775A-48A1-8608-91D0F0BAE23C} = {174962E8-07BC-43F0-8ACC-30DD544AD1BD}
 		{EA12EC16-8411-44B4-A2A1-FD2A1F68CCC4} = {174962E8-07BC-43F0-8ACC-30DD544AD1BD}
+		{FE3396FA-295F-449A-B9DC-288D9DFFB4F6} = {E1E9CE0E-5635-4278-A3DF-1C5A6933DDD1}
 	EndGlobalSection
 EndGlobal

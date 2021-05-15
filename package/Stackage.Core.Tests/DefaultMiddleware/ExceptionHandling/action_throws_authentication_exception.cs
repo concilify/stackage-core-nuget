@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -32,7 +31,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
       {
          base.ConfigureServices(services, configuration);
 
-         A.CallTo(() => GuidGenerator.Generate()).ReturnsNextFromSequence(Guid.Parse("ad465ca5-ed91-4746-84ee-055d9519427d"));
+         A.CallTo(() => TokenGenerator.Generate()).ReturnsNextFromSequence("AD465CA5");
       }
 
       protected override void Configure(IApplicationBuilder app)

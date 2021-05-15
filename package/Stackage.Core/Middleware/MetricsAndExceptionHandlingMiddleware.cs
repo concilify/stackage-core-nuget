@@ -19,20 +19,20 @@ namespace Stackage.Core.Middleware
       private readonly RequestDelegate _next;
       private readonly IPolicyFactory _policyFactory;
       private readonly IMetricSink _metricSink;
-      private readonly IGuidGenerator _guidGenerator;
+      private readonly ITokenGenerator _tokenGenerator;
       private readonly ILogger<MetricsAndExceptionHandlingMiddleware> _logger;
 
       public MetricsAndExceptionHandlingMiddleware(
          RequestDelegate next,
          IPolicyFactory policyFactory,
          IMetricSink metricSink,
-         IGuidGenerator guidGenerator,
+         ITokenGenerator tokenGenerator,
          ILogger<MetricsAndExceptionHandlingMiddleware> logger)
       {
          _next = next ?? throw new ArgumentNullException(nameof(next));
          _policyFactory = policyFactory ?? throw new ArgumentNullException(nameof(policyFactory));
          _metricSink = metricSink ?? throw new ArgumentNullException(nameof(metricSink));
-         _guidGenerator = guidGenerator ?? throw new ArgumentNullException(nameof(guidGenerator));
+         _tokenGenerator = tokenGenerator ?? throw new ArgumentNullException(nameof(tokenGenerator));
          _logger = logger ?? throw new ArgumentNullException(nameof(logger));
       }
 
@@ -67,7 +67,7 @@ namespace Stackage.Core.Middleware
          }
          catch (AuthenticationException e)
          {
-            var token = _guidGenerator.GenerateToken();
+            var token = _tokenGenerator.Generate();
 
             _logger.LogWarning(e, "An authentication exception has occurred (token={token})", token);
 
@@ -75,7 +75,7 @@ namespace Stackage.Core.Middleware
          }
          catch (Exception e)
          {
-            var token = _guidGenerator.GenerateToken();
+            var token = _tokenGenerator.Generate();
 
             _logger.LogError(e, "An unexpected exception has occurred (token={token})", token);
 
