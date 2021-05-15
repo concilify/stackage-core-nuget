@@ -75,7 +75,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
          var metric = (Gauge) MetricSink.Metrics.Last();
 
          // Time is usually c120ms less than specified in from CancellationTokenSource
-         Assert.That(metric.Value, Is.InRange(50, 250));
+         Assert.That(metric.Value, Is.InRange(100, 1000));
       }
    }
 }
