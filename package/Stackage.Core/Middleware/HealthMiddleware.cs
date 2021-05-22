@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Stackage.Core.Abstractions;
 using Stackage.Core.Extensions;
 using Stackage.Core.Options;
@@ -18,7 +17,6 @@ namespace Stackage.Core.Middleware
    {
       private readonly RequestDelegate _next;
       private readonly string _healthEndpoint;
-      private readonly JsonSerializerSettings _jsonSerialiserSettings = new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore};
 
       public HealthMiddleware(RequestDelegate next, IOptions<HealthOptions> options)
       {
@@ -32,7 +30,8 @@ namespace Stackage.Core.Middleware
       public async Task Invoke(
          HttpContext context,
          HealthCheckService healthCheckService,
-         IServiceInfo serviceInfo)
+         IServiceInfo serviceInfo,
+         IJsonSerialiser jsonSerialiser)
       {
          if (!context.Request.Path.Equals(_healthEndpoint))
          {
@@ -48,7 +47,7 @@ namespace Stackage.Core.Middleware
          await context.Response.WriteJsonAsync(
             GetStatusCode(healthReport.Status),
             GetContent(healthReport, serviceInfo),
-            _jsonSerialiserSettings);
+            jsonSerialiser);
       }
 
       private static HttpStatusCode GetStatusCode(HealthStatus healthStatus)

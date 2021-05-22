@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <Product>Stackage</Product>
+    <Title>Stackage.Core.SystemTextJson</Title>
+    <Description>System.Text.Json implementations</Description>
+    <Authors>Andrew Craven</Authors>
+    <RootNamespace>Stackage.Core.SystemTextJson</RootNamespace>
+    <AssemblyName>Stackage.Core.SystemTextJson</AssemblyName>
+    <Version>0.0.0</Version>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Stackage.Core.SystemTextJson</PackageId>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/concilify/stackage-core-nuget</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Stackage.Core.Abstractions" Version="1.1.0" />
+  </ItemGroup>
+</Project>

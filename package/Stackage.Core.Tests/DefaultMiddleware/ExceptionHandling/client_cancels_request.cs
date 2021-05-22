@@ -14,7 +14,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
       [OneTimeSetUp]
       public async Task setup_scenario()
       {
-         using (var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(200)))
+         using (var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100)))
          {
             try
             {
@@ -31,7 +31,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
       {
          base.Configure(app);
 
-         app.UseMiddleware<StubResponseMiddleware>(new StubResponseOptions {Latency = TimeSpan.FromSeconds(10)});
+         app.UseMiddleware<StubResponseMiddleware>(new StubResponseOptions {Latency = TimeSpan.FromSeconds(1000)});
       }
 
       [Test]
@@ -75,7 +75,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
          var metric = (Gauge) MetricSink.Metrics.Last();
 
          // Time is usually c120ms less than specified in from CancellationTokenSource
-         Assert.That(metric.Value, Is.InRange(50, 250));
+         Assert.That(metric.Value, Is.InRange(20, 200));
       }
    }
 }

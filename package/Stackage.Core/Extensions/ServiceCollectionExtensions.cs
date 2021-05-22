@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Stackage.Core.Abstractions;
 using Stackage.Core.Abstractions.Metrics;
 using Stackage.Core.Abstractions.Polly;
@@ -35,6 +34,7 @@ namespace Stackage.Core.Extensions
          services.AddSingleton<IMetricSink>(sp => sp.GetRequiredService<PrometheusMetricSink>());
 
          services.AddTransient<IGuidGenerator, GuidGenerator>();
+         services.AddTransient<ITokenGenerator, TokenGenerator>();
          services.AddTransient<IServiceInfo, ServiceInfo>();
          services.AddTransient<HealthCheckService, StackageHealthCheckService>();
          services.AddTransient<IPolicyFactory, PolicyFactory>();
@@ -64,41 +64,60 @@ namespace Stackage.Core.Extensions
          return services;
       }
 
-      public static IServiceCollection AddHealthCheck(this IServiceCollection services, string name, IHealthCheck healthCheck,
+      public static IServiceCollection AddHealthCheck(
+         this IServiceCollection services,
+         string name,
+         IHealthCheck healthCheck,
          HealthStatus? failureStatus = null)
       {
          var registration = new HealthCheckRegistration(name, healthCheck, failureStatus, null);
 
-         services.Configure<HealthCheckServiceOptions>(options => options.Registrations.Add(registration));
+         services.Configure<HealthCheckServiceOptions>(options => { options.Registrations.Add(registration); });
 
          return services;
       }
 
-      public static IServiceCollection AddHealthCheck(this IServiceCollection services, string name, Func<IServiceProvider, IHealthCheck> healthCheckFactory)
+      public static IServiceCollection AddHealthCheck(
+         this IServiceCollection services,
+         string name,
+         Func<IServiceProvider, IHealthCheck> healthCheckFactory,
+         HealthStatus? failureStatus = null)
       {
-         services.AddOptions();
-         services.AddSingleton<IConfigureOptions<HealthCheckServiceOptions>>(sp =>
-         {
-            var healthCheck = healthCheckFactory(sp);
-            var registration = new HealthCheckRegistration(name, healthCheck, null, null);
+         var registration = new HealthCheckRegistration(name, healthCheckFactory, failureStatus, null, null);
 
-            return new ConfigureNamedOptions<HealthCheckServiceOptions>(Microsoft.Extensions.Options.Options.DefaultName, options => options.Registrations.Add(registration));
-         });
+         services.Configure<HealthCheckServiceOptions>(options => { options.Registrations.Add(registration); });
 
          return services;
       }
 
-      public static IServiceCollection AddHealthCheck<THealthCheck>(this IServiceCollection services, string name)
+      public static IServiceCollection AddHealthCheck<THealthCheck>(
+         this IServiceCollection services,
+         string name,
+         HealthStatus? failureStatus = null)
          where THealthCheck : IHealthCheck
       {
-         services.AddOptions();
-         services.AddSingleton<IConfigureOptions<HealthCheckServiceOptions>>(sp =>
-         {
-            var healthCheck = (IHealthCheck) ActivatorUtilities.CreateInstance(sp, typeof(THealthCheck));
-            var registration = new HealthCheckRegistration(name, healthCheck, null, null);
+         var registration = new HealthCheckRegistration(name, sp => ActivatorUtilities.CreateInstance<THealthCheck>(sp), failureStatus, null, null);
 
-            return new ConfigureNamedOptions<HealthCheckServiceOptions>(Microsoft.Extensions.Options.Options.DefaultName, options => options.Registrations.Add(registration));
-         });
+         services.Configure<HealthCheckServiceOptions>(options => { options.Registrations.Add(registration); });
+
+         return services;
+      }
+
+      public static IServiceCollection AddGenericImplementations(
+         this IServiceCollection services,
+         Type genericServiceType,
+         ITypeEnumerator discoverFromTypes,
+         ServiceLifetime lifetime)
+      {
+         var implementations = discoverFromTypes.GetGenericTypes(genericServiceType);
+
+         foreach (var implementation in implementations)
+         {
+            foreach (var service in implementation.Services)
+            {
+               services.Add(new ServiceDescriptor(service.ServiceType, implementation.ImplementationType, lifetime));
+            }
+         }
 
          return services;
       }
