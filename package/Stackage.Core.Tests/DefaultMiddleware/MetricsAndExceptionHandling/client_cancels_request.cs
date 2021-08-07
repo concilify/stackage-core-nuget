@@ -3,14 +3,19 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
+using Stackage.Core.Polly.Metrics;
 
-namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
+namespace Stackage.Core.Tests.DefaultMiddleware.MetricsAndExceptionHandling
 {
    public class client_cancels_request : middleware_scenario
    {
+      private const int TimerDurationMs = 17;
+
       [OneTimeSetUp]
       public async Task setup_scenario()
       {
@@ -25,6 +30,13 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
                // Expecting this so do nothing
             }
          }
+      }
+
+      protected override void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+      {
+         base.ConfigureServices(services, configuration);
+
+         services.AddSingleton<ITimerFactory>(new StubTimerFactory(TimerDurationMs));
       }
 
       protected override void Configure(IApplicationBuilder app)
@@ -62,20 +74,11 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
          var metric = (Gauge) MetricSink.Metrics.Last();
 
          Assert.That(metric.Name, Is.EqualTo("http_request_end"));
-         Assert.That(metric.Value, Is.GreaterThanOrEqualTo(0));
+         Assert.That(metric.Value, Is.EqualTo(TimerDurationMs));
          Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
          Assert.That(metric.Dimensions["path"], Is.EqualTo("/get"));
          Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(499));
          Assert.That(metric.Dimensions.ContainsKey("exception"), Is.False);
-      }
-
-      [Test]
-      public void should_write_end_metric_with_duration_similar_to_timeout()
-      {
-         var metric = (Gauge) MetricSink.Metrics.Last();
-
-         // Time is usually c120ms less than specified in from CancellationTokenSource
-         Assert.That(metric.Value, Is.InRange(20, 200));
       }
    }
 }

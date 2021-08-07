@@ -3,18 +3,23 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FakeItEasy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
-using Stackage.Core.Abstractions.StartupTasks;
+using Stackage.Core.Polly.Metrics;
 
-namespace Stackage.Core.Tests.DefaultMiddleware.StartupTasks
+namespace Stackage.Core.Tests.DefaultMiddleware.MetricsAndExceptionHandling
 {
-   public class task_succeeds_quickly : middleware_scenario
+   public class action_throws_exception : middleware_scenario
    {
+      private const int TimerDurationMs = 13;
+
+      private Exception _exceptionToThrow;
       private HttpResponseMessage _response;
       private string _content;
 
@@ -29,32 +34,48 @@ namespace Stackage.Core.Tests.DefaultMiddleware.StartupTasks
       {
          base.ConfigureServices(services, configuration);
 
-         services.AddTransient<IStartupTask>(_ => new StubStartupTask {Latency = TimeSpan.Zero});
+         services.AddSingleton<ITimerFactory>(new StubTimerFactory(TimerDurationMs));
+
+         A.CallTo(() => TokenGenerator.Generate()).ReturnsNextFromSequence("F7F57DE4");
       }
 
       protected override void Configure(IApplicationBuilder app)
       {
          base.Configure(app);
 
-         app.UseMiddleware<StubResponseMiddleware>(new StubResponseOptions(HttpStatusCode.OK, "content post startup"));
+         _exceptionToThrow = new InvalidOperationException();
+         app.UseMiddleware<StubResponseMiddleware>(new StubResponseOptions {ThrowException = _exceptionToThrow});
       }
 
       [Test]
-      public void should_return_status_code_200()
+      public void should_return_status_code_500()
       {
-         _response.StatusCode.ShouldBe(HttpStatusCode.OK);
+         _response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
       }
 
       [Test]
-      public void should_return_content()
+      public void should_return_json_content_with_token()
       {
-         _content.ShouldBe("content post startup");
+         _content.ShouldBe("{\"message\":\"Internal Server Error\",\"token\":\"F7F57DE4\"}");
       }
 
       [Test]
-      public void should_not_log_a_message()
+      public void should_return_content_type_json()
       {
-         Logger.Entries.Count.ShouldBe(0);
+         _response.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+      }
+
+      [Test]
+      public void should_log_a_single_message()
+      {
+         Logger.Entries.Count.ShouldBe(1);
+      }
+
+      [Test]
+      public void should_log_error_message_with_token()
+      {
+         Logger.Entries[0].LogLevel.ShouldBe(LogLevel.Error);
+         Logger.Entries[0].Message.ShouldBe("An unexpected exception has occurred (token=F7F57DE4)");
       }
 
       [Test]
@@ -79,9 +100,11 @@ namespace Stackage.Core.Tests.DefaultMiddleware.StartupTasks
          var metric = (Gauge) MetricSink.Metrics.Last();
 
          Assert.That(metric.Name, Is.EqualTo("http_request_end"));
+         Assert.That(metric.Value, Is.EqualTo(TimerDurationMs));
          Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
          Assert.That(metric.Dimensions["path"], Is.EqualTo("/get"));
-         Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(200));
+         Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(500));
+         Assert.That(metric.Dimensions["exception"], Is.EqualTo("InvalidOperationException"));
       }
    }
 }

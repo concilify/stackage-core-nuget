@@ -11,11 +11,14 @@ using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
+using Stackage.Core.Polly.Metrics;
 
-namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
+namespace Stackage.Core.Tests.DefaultMiddleware.MetricsAndExceptionHandling
 {
    public class action_throws_authentication_exception : middleware_scenario
    {
+      private const int TimerDurationMs = 11;
+
       private AuthenticationException _exceptionToThrow;
       private HttpResponseMessage _response;
       private string _content;
@@ -30,6 +33,8 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
       protected override void ConfigureServices(IServiceCollection services, IConfiguration configuration)
       {
          base.ConfigureServices(services, configuration);
+
+         services.AddSingleton<ITimerFactory>(new StubTimerFactory(TimerDurationMs));
 
          A.CallTo(() => TokenGenerator.Generate()).ReturnsNextFromSequence("AD465CA5");
       }
@@ -95,7 +100,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.ExceptionHandling
          var metric = (Gauge) MetricSink.Metrics.Last();
 
          Assert.That(metric.Name, Is.EqualTo("http_request_end"));
-         Assert.That(metric.Value, Is.GreaterThanOrEqualTo(0));
+         Assert.That(metric.Value, Is.EqualTo(TimerDurationMs));
          Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
          Assert.That(metric.Dimensions["path"], Is.EqualTo("/get"));
          Assert.That(metric.Dimensions["statusCode"], Is.EqualTo(401));

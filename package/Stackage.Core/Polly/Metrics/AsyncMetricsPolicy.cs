@@ -11,17 +11,20 @@ namespace Stackage.Core.Polly.Metrics
    {
       private readonly string _name;
       private readonly IMetricSink _metricSink;
+      private readonly ITimerFactory _timerFactory;
       private readonly Func<Context, Task>? _onSuccessAsync;
       private readonly Func<Context, Exception, Task>? _onExceptionAsync;
 
       public AsyncMetricsPolicy(
          string name,
          IMetricSink metricSink,
+         ITimerFactory timerFactory,
          Func<Context, Task>? onSuccessAsync,
          Func<Context, Exception, Task>? onExceptionAsync)
       {
          _name = name ?? throw new ArgumentNullException(nameof(name));
          _metricSink = metricSink ?? throw new ArgumentNullException(nameof(metricSink));
+         _timerFactory = timerFactory;
          _onSuccessAsync = onSuccessAsync;
          _onExceptionAsync = onExceptionAsync;
       }
@@ -35,7 +38,7 @@ namespace Stackage.Core.Polly.Metrics
          async Task OnSuccessAsync(Context c, TResult _) => await Invoke.NullableAsync(_onSuccessAsync, c);
 
          return AsyncMetricsEngine.ImplementationAsync(
-            action, context, cancellationToken, _name, _metricSink, OnSuccessAsync, _onExceptionAsync, continueOnCapturedContext);
+            action, context, cancellationToken, _name, _metricSink, _timerFactory, OnSuccessAsync, _onExceptionAsync, continueOnCapturedContext);
       }
    }
 
@@ -43,17 +46,20 @@ namespace Stackage.Core.Polly.Metrics
    {
       private readonly string _name;
       private readonly IMetricSink _metricSink;
+      private readonly ITimerFactory _timerFactory;
       private readonly Func<Context, TResult, Task>? _onSuccessAsync;
       private readonly Func<Context, Exception, Task>? _onExceptionAsync;
 
       public AsyncMetricsPolicy(
          string name,
          IMetricSink metricSink,
+         ITimerFactory timerFactory,
          Func<Context, TResult, Task>? onSuccessAsync,
          Func<Context, Exception, Task>? onExceptionAsync)
       {
          _name = name ?? throw new ArgumentNullException(nameof(name));
          _metricSink = metricSink ?? throw new ArgumentNullException(nameof(metricSink));
+         _timerFactory = timerFactory;
          _onSuccessAsync = onSuccessAsync;
          _onExceptionAsync = onExceptionAsync;
       }
@@ -65,7 +71,7 @@ namespace Stackage.Core.Polly.Metrics
          bool continueOnCapturedContext)
       {
          return AsyncMetricsEngine.ImplementationAsync(
-            action, context, cancellationToken, _name, _metricSink, _onSuccessAsync, _onExceptionAsync, continueOnCapturedContext);
+            action, context, cancellationToken, _name, _metricSink, _timerFactory, _onSuccessAsync, _onExceptionAsync, continueOnCapturedContext);
       }
    }
 }

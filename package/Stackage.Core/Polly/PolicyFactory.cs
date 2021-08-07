@@ -11,6 +11,13 @@ namespace Stackage.Core.Polly
 {
    public class PolicyFactory : IPolicyFactory
    {
+      private readonly ITimerFactory _timerFactory;
+
+      public PolicyFactory(ITimerFactory timerFactory)
+      {
+         _timerFactory = timerFactory;
+      }
+
       public IAsyncPolicy CreateAsyncRateLimitPolicy(
          IRateLimiter rateLimiter,
          Func<Context, Exception, Task>? onRejectionAsync = null)
@@ -25,22 +32,24 @@ namespace Stackage.Core.Polly
          return new AsyncRateLimitPolicy<TResult>(rateLimiter, onRejectionAsync);
       }
 
+      // TODO: Remove IMetricSink from abstractions package
       public IAsyncPolicy CreateAsyncMetricsPolicy(
          string name,
          IMetricSink metricSink,
          Func<Context, Task>? onSuccessAsync = null,
          Func<Context, Exception, Task>? onExceptionAsync = null)
       {
-         return new AsyncMetricsPolicy(name, metricSink, onSuccessAsync, onExceptionAsync);
+         return new AsyncMetricsPolicy(name, metricSink, _timerFactory, onSuccessAsync, onExceptionAsync);
       }
 
+      // TODO: Remove IMetricSink from abstractions package
       public IAsyncPolicy<TResult> CreateAsyncMetricsPolicy<TResult>(
          string name,
          IMetricSink metricSink,
          Func<Context, TResult, Task>? onSuccessAsync = null,
          Func<Context, Exception, Task>? onExceptionAsync = null)
       {
-         return new AsyncMetricsPolicy<TResult>(name, metricSink, onSuccessAsync, onExceptionAsync);
+         return new AsyncMetricsPolicy<TResult>(name, metricSink, _timerFactory, onSuccessAsync, onExceptionAsync);
       }
    }
 }

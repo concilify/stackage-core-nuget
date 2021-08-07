@@ -28,7 +28,6 @@ namespace Stackage.Core.Tests.DefaultMiddleware.Health
          var metric = (Gauge) MetricSink.Metrics.Last();
 
          Assert.That(metric.Name, Is.EqualTo("http_request_end"));
-         Assert.That(metric.Value, Is.GreaterThanOrEqualTo(0));
          Assert.That(metric.Dimensions["method"], Is.EqualTo("GET"));
       }
 

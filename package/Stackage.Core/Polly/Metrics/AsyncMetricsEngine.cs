@@ -16,6 +16,7 @@ namespace Stackage.Core.Polly.Metrics
          CancellationToken cancellationToken,
          string name,
          IMetricSink metricSink,
+         ITimerFactory timerFactory,
          Func<Context, TResult, Task>? onSuccessAsync,
          Func<Context, Exception, Task>? onExceptionAsync,
          bool continueOnCapturedContext)
@@ -27,20 +28,20 @@ namespace Stackage.Core.Polly.Metrics
             Dimensions = context.ToDictionary(c => c.Key, c => c.Value)
          });
 
-         var stopwatch = Stopwatch.StartNew();
+         var timer = timerFactory.CreateAndStart();
 
          try
          {
             var result = await action(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
 
-            stopwatch.Stop();
+            timer.Stop();
             await Invoke.NullableAsync(onSuccessAsync, context, result);
 
             return result;
          }
          catch (Exception e)
          {
-            stopwatch.Stop();
+            timer.Stop();
             await Invoke.NullableAsync(onExceptionAsync, context, e);
 
             throw;
@@ -50,7 +51,7 @@ namespace Stackage.Core.Polly.Metrics
             await metricSink.PushAsync(new Gauge($"{name}_end")
             {
                Dimensions = context.ToDictionary(c => c.Key, c => c.Value),
-               Value = stopwatch.ElapsedMilliseconds
+               Value = timer.ElapsedMilliseconds
             });
          }
       }

@@ -14,6 +14,7 @@ using Stackage.Core.Health;
 using Stackage.Core.MetricSinks;
 using Stackage.Core.Options;
 using Stackage.Core.Polly;
+using Stackage.Core.Polly.Metrics;
 using Stackage.Core.StartupTasks;
 
 namespace Stackage.Core.Extensions
@@ -38,6 +39,7 @@ namespace Stackage.Core.Extensions
          services.AddTransient<IServiceInfo, ServiceInfo>();
          services.AddTransient<HealthCheckService, StackageHealthCheckService>();
          services.AddTransient<IPolicyFactory, PolicyFactory>();
+         services.AddTransient<ITimerFactory, TimerFactory>();
 
          var stackageConfiguration = configuration.GetSection("stackage");
 

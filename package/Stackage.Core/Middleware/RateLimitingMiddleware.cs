@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Polly;
 using Stackage.Core.Abstractions;
 using Stackage.Core.Abstractions.Polly;
 using Stackage.Core.Abstractions.Polly.RateLimit;

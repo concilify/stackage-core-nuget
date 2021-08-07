@@ -10,6 +10,9 @@ namespace Stackage.Core.Tests.Polly.Metrics
 {
    public class happy_path_double_execute
    {
+      private const int TimerDurationMs1 = 23;
+      private const int TimerDurationMs2 = 29;
+
       private StubMetricSink _metricSink;
 
       [OneTimeSetUp]
@@ -23,11 +26,11 @@ namespace Stackage.Core.Tests.Polly.Metrics
 
          _metricSink = new StubMetricSink();
 
-         var policyFactory = new PolicyFactory();
+         var policyFactory = new PolicyFactory(new StubTimerFactory(TimerDurationMs1, TimerDurationMs2));
          var metricsPolicy = policyFactory.CreateAsyncMetricsPolicy("foo", _metricSink, onSuccessAsync: OnSuccessAsync);
 
-         await metricsPolicy.ExecuteAsync((context) => Task.Delay(5), new Dictionary<string, object> {{"execute-key", "execute-value-1"}});
-         await metricsPolicy.ExecuteAsync((context) => Task.Delay(5), new Dictionary<string, object> {{"execute-key", "execute-value-2"}});
+         await metricsPolicy.ExecuteAsync(async _ => await Task.Yield(), new Dictionary<string, object> {{"execute-key", "execute-value-1"}});
+         await metricsPolicy.ExecuteAsync(async _ => await Task.Yield(), new Dictionary<string, object> {{"execute-key", "execute-value-2"}});
       }
 
       [Test]
@@ -52,7 +55,7 @@ namespace Stackage.Core.Tests.Polly.Metrics
          var metric = (Gauge) _metricSink.Metrics.First(x => x.Name == "foo_end");
 
          Assert.That(metric.Name, Is.EqualTo("foo_end"));
-         Assert.That(metric.Value, Is.GreaterThan(0));
+         Assert.That(metric.Value, Is.EqualTo(TimerDurationMs1));
          Assert.That(metric.Dimensions.Keys, Is.EquivalentTo(new[] {"execute-key", "success-key"}));
          Assert.That(metric.Dimensions.Values, Is.EquivalentTo(new[] {"execute-value-1", "success-value"}));
       }
@@ -73,7 +76,7 @@ namespace Stackage.Core.Tests.Polly.Metrics
          var metric = (Gauge) _metricSink.Metrics.Last(x => x.Name == "foo_end");
 
          Assert.That(metric.Name, Is.EqualTo("foo_end"));
-         Assert.That(metric.Value, Is.GreaterThan(0));
+         Assert.That(metric.Value, Is.EqualTo(TimerDurationMs2));
          Assert.That(metric.Dimensions.Keys, Is.EquivalentTo(new[] {"execute-key", "success-key"}));
          Assert.That(metric.Dimensions.Values, Is.EquivalentTo(new[] {"execute-value-2", "success-value"}));
       }

@@ -15,7 +15,7 @@ namespace Stackage.Core.Tests.Polly.RateLimit
       public async Task setup_scenario()
       {
          var rateLimiter = new RateLimiter(1, TimeSpan.FromMilliseconds(20), 1, TimeSpan.FromMinutes(1));
-         var policyFactory = new PolicyFactory();
+         var policyFactory = new PolicyFactory(new StubTimerFactory());
          var rateLimitPolicy = policyFactory.CreateAsyncRateLimitPolicy(rateLimiter);
 
          var executeCallCount = 0;
