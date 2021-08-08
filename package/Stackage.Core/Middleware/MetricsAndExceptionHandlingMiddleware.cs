@@ -26,7 +26,6 @@ namespace Stackage.Core.Middleware
       public async Task Invoke(
          HttpContext httpContext,
          IPolicyFactory policyFactory,
-         IMetricSink metricSink,
          ITokenGenerator tokenGenerator,
          IJsonSerialiser jsonSerialiser,
          ILogger<MetricsAndExceptionHandlingMiddleware> logger)
