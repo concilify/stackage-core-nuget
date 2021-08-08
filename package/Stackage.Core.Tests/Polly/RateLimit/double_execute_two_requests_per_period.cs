@@ -17,7 +17,7 @@ namespace Stackage.Core.Tests.Polly.RateLimit
       [OneTimeSetUp]
       public async Task setup_scenario()
       {
-         var rateLimiter = new RateLimiter(2, TimeSpan.FromMilliseconds(50), 2, TimeSpan.FromMinutes(1));
+         var rateLimiter = new RateLimiter(2, TimeSpan.FromMilliseconds(100), 2, TimeSpan.FromMinutes(1));
          var policyFactory = new PolicyFactory(A.Fake<IMetricSink>(), A.Fake<ITimerFactory>());
          var rateLimitPolicy = policyFactory.CreateAsyncRateLimitingPolicy(rateLimiter);
 

@@ -9,7 +9,7 @@ using Stackage.Core.RateLimiting;
 
 namespace Stackage.Core.Tests.Polly.RateLimit
 {
-   public class double_execute_one_request_per_period
+   public class triple_execute_one_request_per_period
    {
       private int _executeCallCount;
       private long _durationMs;
@@ -23,7 +23,7 @@ namespace Stackage.Core.Tests.Polly.RateLimit
 
          var stopwatch = Stopwatch.StartNew();
 
-         for (var i = 0; i < 2; i++)
+         for (var i = 0; i < 3; i++)
          {
             await rateLimitPolicy.ExecuteAsync(() =>
             {
@@ -37,15 +37,15 @@ namespace Stackage.Core.Tests.Polly.RateLimit
       }
 
       [Test]
-      public void should_have_executed_twice()
+      public void should_have_executed_three_times()
       {
-         Assert.That(_executeCallCount, Is.EqualTo(2));
+         Assert.That(_executeCallCount, Is.EqualTo(3));
       }
 
       [Test]
       public void should_wait_for_limit_period_for_second_execute()
       {
-         Assert.That(_durationMs, Is.InRange(60, 140));
+         Assert.That(_durationMs, Is.InRange(160, 240));
       }
    }
 }
