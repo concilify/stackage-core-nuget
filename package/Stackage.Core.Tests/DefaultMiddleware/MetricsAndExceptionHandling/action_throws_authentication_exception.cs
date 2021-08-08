@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
-using Stackage.Core.Polly.Metrics;
 
 namespace Stackage.Core.Tests.DefaultMiddleware.MetricsAndExceptionHandling
 {

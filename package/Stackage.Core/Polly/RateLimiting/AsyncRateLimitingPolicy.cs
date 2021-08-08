@@ -2,16 +2,17 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Polly;
-using Stackage.Core.Abstractions.Polly.RateLimit;
+using Stackage.Core.Abstractions.Polly.RateLimiting;
+using Stackage.Core.Abstractions.RateLimiting;
 
-namespace Stackage.Core.Polly.RateLimit
+namespace Stackage.Core.Polly.RateLimiting
 {
-   public class AsyncRateLimitPolicy : AsyncPolicy, IRateLimitPolicy, IsPolicy
+   public class AsyncRateLimitingPolicy : AsyncPolicy, IRateLimitingPolicy, IsPolicy
    {
       private readonly IRateLimiter _rateLimiter;
       private readonly Func<Context, Exception, Task>? _onRejectionAsync;
 
-      public AsyncRateLimitPolicy(
+      public AsyncRateLimitingPolicy(
          IRateLimiter rateLimiter,
          Func<Context, Exception, Task>? onRejectionAsync)
       {
@@ -25,16 +26,16 @@ namespace Stackage.Core.Polly.RateLimit
          CancellationToken cancellationToken,
          bool continueOnCapturedContext)
       {
-         return AsyncRateLimitEngine.ImplementationAsync(action, context, cancellationToken, _rateLimiter, _onRejectionAsync, continueOnCapturedContext);
+         return AsyncRateLimitingEngine.ImplementationAsync(action, context, cancellationToken, _rateLimiter, _onRejectionAsync, continueOnCapturedContext);
       }
    }
 
-   public class AsyncRateLimitPolicy<TResult> : AsyncPolicy<TResult>, IRateLimitPolicy<TResult>, IsPolicy
+   public class AsyncRateLimitingPolicy<TResult> : AsyncPolicy<TResult>, IRateLimitingPolicy<TResult>, IsPolicy
    {
       private readonly IRateLimiter _rateLimiter;
       private readonly Func<Context, Exception, Task>? _onRejectionAsync;
 
-      public AsyncRateLimitPolicy(
+      public AsyncRateLimitingPolicy(
          IRateLimiter rateLimiter,
          Func<Context, Exception, Task>? onRejectionAsync)
       {
@@ -48,7 +49,7 @@ namespace Stackage.Core.Polly.RateLimit
          CancellationToken cancellationToken,
          bool continueOnCapturedContext)
       {
-         return AsyncRateLimitEngine.ImplementationAsync(action, context, cancellationToken, _rateLimiter, _onRejectionAsync, continueOnCapturedContext);
+         return AsyncRateLimitingEngine.ImplementationAsync(action, context, cancellationToken, _rateLimiter, _onRejectionAsync, continueOnCapturedContext);
       }
    }
 }

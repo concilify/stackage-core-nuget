@@ -8,14 +8,14 @@ namespace Stackage.Core.Tests.MetricSinks.LoggingMetricSink
 {
    public class happy_path_with_dimensions
    {
-      private StubLogger<Core.MetricSinks.LoggingMetricSink> _logger;
+      private StubLogger<Metrics.LoggingMetricSink> _logger;
 
       [OneTimeSetUp]
       public async Task setup_once_before_all_tests()
       {
-         _logger = new StubLogger<Core.MetricSinks.LoggingMetricSink>();
+         _logger = new StubLogger<Metrics.LoggingMetricSink>();
 
-         var loggingMetricSink = new Core.MetricSinks.LoggingMetricSink(_logger);
+         var loggingMetricSink = new Metrics.LoggingMetricSink(_logger);
 
          var metric = new Counter("foo") {Dimensions = new Dictionary<string, object> {{"a", 1}, {"b", 2}}};
          await loggingMetricSink.PushAsync(metric);

@@ -18,8 +18,8 @@ namespace Stackage.Core.Tests.Polly.Metrics
       {
          _metricSink = new StubMetricSink();
 
-         var policyFactory = new PolicyFactory(new StubTimerFactory(TimerDurationMs));
-         var metricsPolicy = policyFactory.CreateAsyncMetricsPolicy("foo", _metricSink);
+         var policyFactory = new PolicyFactory(_metricSink, new StubTimerFactory(TimerDurationMs));
+         var metricsPolicy = policyFactory.CreateAsyncMetricsPolicy("foo");
 
          await metricsPolicy.ExecuteAsync(async _ => await Task.Yield(), new Dictionary<string, object> {{"execute-key", "execute-value"}});
       }

@@ -1,14 +1,15 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Stackage.Core.Abstractions.Polly.RateLimit;
+using Stackage.Core.Abstractions.RateLimiting;
 
-namespace Stackage.Core.Polly.RateLimit
+namespace Stackage.Core.RateLimiting
 {
    public class RateLimiter : IRateLimiter, IDisposable
    {
       private readonly SemaphoreSlim _tokenBucket;
       private readonly int _newTokensPerTimerCallback;
+      private readonly int _timerPeriodMs;
       private readonly Timer _timer;
       private readonly int _burstSize;
       private readonly TimeSpan _maxWait;
@@ -23,13 +24,13 @@ namespace Stackage.Core.Polly.RateLimit
          var gcd = GreatestCommonDivisor(requestsPerPeriod, periodMs);
 
          _newTokensPerTimerCallback = (int) (requestsPerPeriod / gcd);
-         var timerPeriodMs = (int) (periodMs / gcd);
+         _timerPeriodMs = (int) (periodMs / gcd);
 
          _burstSize = burstSize;
          _maxWait = maxWait;
          _tokenBucket = new SemaphoreSlim(_burstSize);
 
-         _timer = new Timer(TimerCallback, null, timerPeriodMs, timerPeriodMs);
+         _timer = new Timer(TimerCallback, null, _timerPeriodMs, _timerPeriodMs);
       }
 
       private void TimerCallback(object? state)
@@ -49,7 +50,7 @@ namespace Stackage.Core.Polly.RateLimit
 
          if (!allowed)
          {
-            throw new RateLimitRejectionException();
+            throw new RateLimitExceededException($"Exceeded {_newTokensPerTimerCallback} request(s) per {_timerPeriodMs} millisecond(s)");
          }
       }
 

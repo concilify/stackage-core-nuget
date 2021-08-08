@@ -9,7 +9,6 @@ using NUnit.Framework;
 using Shouldly;
 using Stackage.Core.Abstractions.Metrics;
 using Stackage.Core.Extensions;
-using Stackage.Core.Polly.Metrics;
 
 namespace Stackage.Core.Tests.DefaultMiddleware.Health
 {

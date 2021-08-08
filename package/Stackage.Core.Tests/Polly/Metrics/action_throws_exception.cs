@@ -21,8 +21,8 @@ namespace Stackage.Core.Tests.Polly.Metrics
          _exceptionToThrow = new Exception();
          _metricSink = new StubMetricSink();
 
-         var policyFactory = new PolicyFactory(new StubTimerFactory(TimerDurationMs));
-         var metricsPolicy = policyFactory.CreateAsyncMetricsPolicy("bar", _metricSink);
+         var policyFactory = new PolicyFactory(_metricSink, new StubTimerFactory(TimerDurationMs));
+         var metricsPolicy = policyFactory.CreateAsyncMetricsPolicy("bar");
 
          try
          {

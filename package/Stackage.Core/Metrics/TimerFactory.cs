@@ -1,7 +1,7 @@
-using System;
 using System.Diagnostics;
+using Stackage.Core.Abstractions.Metrics;
 
-namespace Stackage.Core.Polly.Metrics
+namespace Stackage.Core.Metrics
 {
    public class TimerFactory : ITimerFactory
    {

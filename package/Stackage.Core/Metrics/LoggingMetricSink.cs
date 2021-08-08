@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Stackage.Core.Abstractions.Metrics;
 
-namespace Stackage.Core.MetricSinks
+namespace Stackage.Core.Metrics
 {
    public class LoggingMetricSink : IMetricSink
    {

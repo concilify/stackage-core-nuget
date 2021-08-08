@@ -11,10 +11,9 @@ using Stackage.Core.Abstractions.Metrics;
 using Stackage.Core.Abstractions.Polly;
 using Stackage.Core.Abstractions.StartupTasks;
 using Stackage.Core.Health;
-using Stackage.Core.MetricSinks;
+using Stackage.Core.Metrics;
 using Stackage.Core.Options;
 using Stackage.Core.Polly;
-using Stackage.Core.Polly.Metrics;
 using Stackage.Core.StartupTasks;
 
 namespace Stackage.Core.Extensions

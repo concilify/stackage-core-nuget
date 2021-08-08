@@ -37,7 +37,7 @@ namespace Stackage.Core.Middleware
             return Task.CompletedTask;
          }
 
-         var metricsPolicy = policyFactory.CreateAsyncMetricsPolicy("http_request", metricSink, onSuccessAsync: OnSuccessAsync);
+         var metricsPolicy = policyFactory.CreateAsyncMetricsPolicy("http_request", onSuccessAsync: OnSuccessAsync);
 
          var dimensions = new Dictionary<string, object>
          {

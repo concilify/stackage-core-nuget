@@ -14,7 +14,7 @@ using Stackage.Core.Options;
 using Counter = Prometheus.Counter;
 using Gauge = Stackage.Core.Abstractions.Metrics.Gauge;
 
-namespace Stackage.Core.MetricSinks
+namespace Stackage.Core.Metrics
 {
    public class PrometheusMetricSink : BackgroundService, IMetricSink
    {
@@ -78,7 +78,7 @@ namespace Stackage.Core.MetricSinks
          {
             if (metric.Type == "Counter")
             {
-               var counter = Metrics.CreateCounter(metric.Name, metric.Description ?? string.Empty,
+               var counter = Prometheus.Metrics.CreateCounter(metric.Name, metric.Description ?? string.Empty,
                   new CounterConfiguration
                   {
                      LabelNames = metric.Labels
@@ -88,7 +88,7 @@ namespace Stackage.Core.MetricSinks
             }
             else if (metric.Type == "Histogram")
             {
-               var histogram = Metrics.CreateHistogram(metric.Name, metric.Description ?? string.Empty,
+               var histogram = Prometheus.Metrics.CreateHistogram(metric.Name, metric.Description ?? string.Empty,
                   new HistogramConfiguration
                   {
                      LabelNames = metric.Labels,

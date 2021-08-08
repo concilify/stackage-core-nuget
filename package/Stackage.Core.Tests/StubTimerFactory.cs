@@ -1,7 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Stackage.Core.Polly.Metrics;
+using Stackage.Core.Abstractions.Metrics;
 
 namespace Stackage.Core.Tests
 {

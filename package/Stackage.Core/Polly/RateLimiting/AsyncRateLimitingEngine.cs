@@ -2,11 +2,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Polly;
-using Stackage.Core.Abstractions.Polly.RateLimit;
+using Stackage.Core.Abstractions.Polly.RateLimiting;
+using Stackage.Core.Abstractions.RateLimiting;
 
-namespace Stackage.Core.Polly.RateLimit
+namespace Stackage.Core.Polly.RateLimiting
 {
-   public static class AsyncRateLimitEngine
+   public static class AsyncRateLimitingEngine
    {
       public static async Task<TResult> ImplementationAsync<TResult>(
          Func<Context, CancellationToken, Task<TResult>> action,
@@ -22,11 +23,11 @@ namespace Stackage.Core.Polly.RateLimit
          {
             await rateLimiter.WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext);
          }
-         catch (RateLimitRejectionException e)
+         catch (RateLimitExceededException e)
          {
             await Invoke.NullableAsync(onRejectionAsync, context, e).ConfigureAwait(continueOnCapturedContext);
 
-            throw;
+            throw new RateLimitRejectionException("Request failed due to rate limit", e);
          }
 
          return await action(context, cancellationToken).ConfigureAwait(continueOnCapturedContext);
