@@ -3,13 +3,12 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
-using Polly;
 using Stackage.Core.Abstractions;
 using Stackage.Core.Abstractions.Polly;
-using Stackage.Core.Abstractions.Polly.RateLimit;
+using Stackage.Core.Abstractions.Polly.RateLimiting;
 using Stackage.Core.Extensions;
 using Stackage.Core.Options;
-using Stackage.Core.Polly.RateLimit;
+using Stackage.Core.RateLimiting;
 
 namespace Stackage.Core.Middleware
 {
@@ -59,7 +58,7 @@ namespace Stackage.Core.Middleware
 
       private async Task InvokeWithRateLimitingAsync(HttpContext context, IPolicyFactory policyFactory, IJsonSerialiser jsonSerialiser)
       {
-         var rateLimitPolicy = policyFactory.CreateAsyncRateLimitPolicy(_rateLimiter!);
+         var rateLimitPolicy = policyFactory.CreateAsyncRateLimitingPolicy(_rateLimiter!);
 
          try
          {

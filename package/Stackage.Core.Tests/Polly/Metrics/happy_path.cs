@@ -8,6 +8,8 @@ namespace Stackage.Core.Tests.Polly.Metrics
 {
    public class happy_path
    {
+      private const int TimerDurationMs = 19;
+
       private StubMetricSink _metricSink;
 
       [OneTimeSetUp]
@@ -15,10 +17,10 @@ namespace Stackage.Core.Tests.Polly.Metrics
       {
          _metricSink = new StubMetricSink();
 
-         var policyFactory = new PolicyFactory();
-         var metricsPolicy = policyFactory.CreateAsyncMetricsPolicy("foo", _metricSink);
+         var policyFactory = new PolicyFactory(_metricSink, new StubTimerFactory(TimerDurationMs));
+         var metricsPolicy = policyFactory.CreateAsyncMetricsPolicy("foo");
 
-         await metricsPolicy.ExecuteAsync(() => Task.Delay(100));
+         await metricsPolicy.ExecuteAsync(async () => await Task.Yield());
       }
 
       [Test]
@@ -41,7 +43,7 @@ namespace Stackage.Core.Tests.Polly.Metrics
          var metric = (Gauge) _metricSink.Metrics.Last();
 
          Assert.That(metric.Name, Is.EqualTo("foo_end"));
-         Assert.That(metric.Value, Is.InRange(50, 200));
+         Assert.That(metric.Value, Is.EqualTo(TimerDurationMs));
       }
    }
 }

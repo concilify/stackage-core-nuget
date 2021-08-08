@@ -1,9 +1,11 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using FakeItEasy;
 using NUnit.Framework;
+using Stackage.Core.Abstractions.Metrics;
 using Stackage.Core.Polly;
-using Stackage.Core.Polly.RateLimit;
+using Stackage.Core.RateLimiting;
 
 namespace Stackage.Core.Tests.Polly.RateLimit
 {
@@ -15,8 +17,8 @@ namespace Stackage.Core.Tests.Polly.RateLimit
       public async Task setup_scenario()
       {
          var rateLimiter = new RateLimiter(1, TimeSpan.FromMilliseconds(20), 1, TimeSpan.FromMinutes(1));
-         var policyFactory = new PolicyFactory();
-         var rateLimitPolicy = policyFactory.CreateAsyncRateLimitPolicy(rateLimiter);
+         var policyFactory = new PolicyFactory(A.Fake<IMetricSink>(), A.Fake<ITimerFactory>());
+         var rateLimitPolicy = policyFactory.CreateAsyncRateLimitingPolicy(rateLimiter);
 
          var executeCallCount = 0;
          for (var i = 0; i < 100; i++)

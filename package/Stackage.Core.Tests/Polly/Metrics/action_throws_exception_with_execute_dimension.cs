@@ -10,6 +10,8 @@ namespace Stackage.Core.Tests.Polly.Metrics
 {
    public class action_throws_exception_with_execute_dimension
    {
+      private const int TimerDurationMs = 13;
+
       private Exception _exceptionToThrow;
       private Exception _exceptionThrown;
       private StubMetricSink _metricSink;
@@ -20,14 +22,14 @@ namespace Stackage.Core.Tests.Polly.Metrics
          _exceptionToThrow = new Exception();
          _metricSink = new StubMetricSink();
 
-         var policyFactory = new PolicyFactory();
-         var metricsPolicy = policyFactory.CreateAsyncMetricsPolicy("bar", _metricSink);
+         var policyFactory = new PolicyFactory(_metricSink, new StubTimerFactory(TimerDurationMs));
+         var metricsPolicy = policyFactory.CreateAsyncMetricsPolicy("bar");
 
          try
          {
             await metricsPolicy.ExecuteAsync(async (context) =>
             {
-               await Task.Delay(50);
+               await Task.Yield();
 
                throw _exceptionToThrow;
             }, new Dictionary<string, object> {{"execute-key", "execute-value"}});
@@ -66,7 +68,7 @@ namespace Stackage.Core.Tests.Polly.Metrics
          var metric = (Gauge) _metricSink.Metrics.Last();
 
          Assert.That(metric.Name, Is.EqualTo("bar_end"));
-         Assert.That(metric.Value, Is.InRange(25, 100));
+         Assert.That(metric.Value, Is.EqualTo(TimerDurationMs));
          Assert.That(metric.Dimensions.Keys, Is.EquivalentTo(new[] {"execute-key"}));
          Assert.That(metric.Dimensions.Values, Is.EquivalentTo(new[] {"execute-value"}));
       }
