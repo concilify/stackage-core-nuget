@@ -17,7 +17,7 @@ namespace Stackage.Core.SystemTextJson
          _options = new JsonSerializerOptions
          {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            IgnoreNullValues = true
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
          };
 
          _options.Converters.Add(new ObjectToInferredTypesConverter());
