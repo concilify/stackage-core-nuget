@@ -9,22 +9,28 @@ jobs:
     timeout-minutes: 15
     env:
       DOTNET_NOLOGO: true
+
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+
     - name: Verify commit exists in origin/main
       run: |
         git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
         git branch --remote --contains | grep origin/main
+
     - name: Set VERSION
       run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+
     - name: Pack
       run: |
         dotnet pack --configuration Release -p:Version=${VERSION} --output . package/Stackage.Core/Stackage.Core.csproj
         dotnet pack --configuration Release -p:Version=${VERSION} --output . package/Stackage.Core.SystemTextJson/Stackage.Core.SystemTextJson.csproj
+
     - name: Test
       run: dotnet test --configuration Release -p:Version=${VERSION} package/Stackage.Core.Tests/Stackage.Core.Tests.csproj
+
     - name: Push
       run: dotnet nuget push *.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_PUSH_TOKEN}
       env:
-        NUGET_PUSH_TOKEN: ${{ secrets.NUGET_PUSH_TOKEN }}
+        NUGET_PUSH_TOKEN: ${{ secrets.STACKAGE_NUGET_PUSH_TOKEN }}
