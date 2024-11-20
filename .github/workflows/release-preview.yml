@@ -1,3 +1,5 @@
+name: Release Preview Build
+
 on:
   push:
     tags:
