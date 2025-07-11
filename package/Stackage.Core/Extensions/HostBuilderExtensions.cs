@@ -19,10 +19,12 @@ namespace Stackage.Core.Extensions
             })
             .ConfigureAppConfiguration((context, builder) =>
             {
-               var prefix = $"{context.HostingEnvironment.ApplicationName.Replace(".", "")}_";
+               var env = context.HostingEnvironment;
+               var prefix = $"{env.ApplicationName.Replace(".", "")}_";
 
                builder
-                  .AddJsonFile("appsettings.json")
+                  .AddJsonFile("appsettings.json", optional: true)
+                  .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                   .AddDockerSecrets(prefix)
                   .AddEnvironmentVariables(prefix)
                   .AddCommandLine(args);
