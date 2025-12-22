@@ -24,5 +24,5 @@ This repository publishes a .NET NuGet package. The following guidelines are for
     - Publication of the NuGet package is handled manually.
     - To trigger a new package release:
         1. Merge all changes to the `main` branch.
-        2. Tag the repository with a version following [Semantic Versioning](https://semver.org/). To build a pre-release package, add `-preview`
+        2. Tag the repository with a version following [Semantic Versioning](https://semver.org/). To build a pre-release package, add a suffix `-preview{NUMBER}` where `{NUMBER}` is 3 numeric digits.
         3. The publication workflow will use the tagged commit to generate and publish the NuGet package.
