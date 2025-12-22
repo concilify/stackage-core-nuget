@@ -1,5 +1,5 @@
-using System.IO;
-using System.Reflection;
+// using System.IO;
+// using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -7,10 +7,12 @@ namespace Stackage.Core.Extensions
 {
    public static class HostBuilderExtensions
    {
-      public static IHostBuilder UseDefaultBuilder(this IHostBuilder hostBuilder, string[] args)
+      public static IHostBuilder UseDefaultBuilder(
+         this IHostBuilder hostBuilder,
+         string[] args)
       {
          return hostBuilder
-            .UseContentRoot(GetExeDirectory())
+            //.UseContentRoot(GetExeDirectory(path))
             .ConfigureHostConfiguration(builder =>
             {
                builder
@@ -37,10 +39,10 @@ namespace Stackage.Core.Extensions
                options.ValidateOnBuild = isDevelopment;
             });
       }
-
-      private static string GetExeDirectory()
-      {
-         return Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location ?? Directory.GetCurrentDirectory())!;
-      }
+      //
+      // private static string GetExeDirectory(string? path = null)
+      // {
+      //    return Path.GetDirectoryName(path ?? Assembly.GetEntryAssembly()?.Location ?? Directory.GetCurrentDirectory())!;
+      // }
    }
 }

@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,24 +11,26 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
    public class UseDefaultBuilderTests
    {
       private string _testDirectory;
-      private string _originalDirectory;
+      // private string _originalDirectory;
 
       [SetUp]
       public void setup_before_each_test()
       {
-         // UseDefaultBuilder uses the exe directory, so we need to use the actual output directory
-         _testDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location ?? Directory.GetCurrentDirectory())!;
-         _originalDirectory = Directory.GetCurrentDirectory();
-         
-         // Change to test directory for tests
-         Directory.SetCurrentDirectory(_testDirectory);
+         // Use the application base directory where the test binaries are located.
+         // Using Assembly.GetEntryAssembly() points to the test runner (e.g., Rider's runner in Program Files),
+         // which causes UnauthorizedAccessException when trying to write files.
+         _testDirectory = AppDomain.CurrentDomain.BaseDirectory;
+         // _originalDirectory = Directory.GetCurrentDirectory();
+         //
+         // // Change to test directory for tests
+         // Directory.SetCurrentDirectory(_testDirectory);
       }
 
       [TearDown]
       public void teardown_after_each_test()
       {
          // Restore original directory
-         Directory.SetCurrentDirectory(_originalDirectory);
+         //Directory.SetCurrentDirectory(_originalDirectory);
 
          // Clean up test files created in the exe directory
          CleanupTestFile("appsettings.json");
@@ -59,7 +59,7 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          using var host = new HostBuilder()
             .UseDefaultBuilder([])
             .Build();
-         
+
          var hostEnvironment = host.Services.GetRequiredService<IHostEnvironment>();
          return $"{hostEnvironment.ApplicationName.Replace(".", "")}_";
       }
@@ -84,7 +84,7 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
       {
          var appSettingsPath = Path.Combine(_testDirectory, "appsettings.json");
          var appSettingsDevelopmentPath = Path.Combine(_testDirectory, "appsettings.Development.json");
-         
+
          File.WriteAllText(appSettingsPath, @"{""TestKey"": ""BaseValue"", ""OnlyInBase"": ""Base""}");
          File.WriteAllText(appSettingsDevelopmentPath, @"{""TestKey"": ""DevelopmentValue""}");
 
@@ -105,7 +105,7 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
       {
          var appSettingsPath = Path.Combine(_testDirectory, "appsettings.json");
          var appSettingsProductionPath = Path.Combine(_testDirectory, "appsettings.Production.json");
-         
+
          File.WriteAllText(appSettingsPath, @"{""TestKey"": ""BaseValue""}");
          File.WriteAllText(appSettingsProductionPath, @"{""TestKey"": ""ProductionValue""}");
 
@@ -192,7 +192,7 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
       {
          var appSettingsPath = Path.Combine(_testDirectory, "appsettings.json");
          var appSettingsDevelopmentPath = Path.Combine(_testDirectory, "appsettings.Development.json");
-         
+
          File.WriteAllText(appSettingsPath, @"{""TestKey"": ""BaseValue""}");
          File.WriteAllText(appSettingsDevelopmentPath, @"{""TestKey"": ""DevelopmentValue""}");
 
@@ -208,7 +208,7 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
 
-         Assert.That(configuration["TestKey"], Is.EqualTo("EnvVarValue"), 
+         Assert.That(configuration["TestKey"], Is.EqualTo("EnvVarValue"),
             "Environment variables should override appsettings");
 
          Environment.SetEnvironmentVariable(envVarName, null);
@@ -220,7 +220,7 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          var prefix = GetApplicationNamePrefix();
          var envVarName = $"{prefix}TestKey";
          Environment.SetEnvironmentVariable(envVarName, "EnvVarValue");
-         
+
          var args = new[] { "--TestKey=CommandLineValue" };
 
          using var host = new HostBuilder()
@@ -229,7 +229,7 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
 
-         Assert.That(configuration["TestKey"], Is.EqualTo("CommandLineValue"), 
+         Assert.That(configuration["TestKey"], Is.EqualTo("CommandLineValue"),
             "Command line args should override environment variables");
 
          Environment.SetEnvironmentVariable(envVarName, null);
@@ -242,7 +242,7 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
 
          using var host = new HostBuilder()
             .UseDefaultBuilder([])
-            .ConfigureServices((context, services) =>
+            .ConfigureServices((_, services) =>
             {
                services.AddScoped<TestScopedService>();
             })
@@ -261,7 +261,7 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
 
          using var host = new HostBuilder()
             .UseDefaultBuilder([])
-            .ConfigureServices((context, services) =>
+            .ConfigureServices((_, services) =>
             {
                services.AddScoped<TestScopedService>();
             })
