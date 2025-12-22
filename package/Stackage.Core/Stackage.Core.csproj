@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <Product>Stackage</Product>
     <Title>Stackage.Core</Title>
@@ -11,6 +11,7 @@
     <AssemblyName>Stackage.Core</AssemblyName>
     <Version>0.0.0</Version>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);NU1510</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -25,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Stackage.Core.Abstractions" Version="3.0.0" />
+    <PackageReference Include="Stackage.Core.Abstractions" Version="3.1.0-preview001" />
   </ItemGroup>
 
   <ItemGroup>
