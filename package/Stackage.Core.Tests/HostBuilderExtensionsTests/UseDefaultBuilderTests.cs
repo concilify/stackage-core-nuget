@@ -16,7 +16,7 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
       private string _originalDirectory;
 
       [SetUp]
-      public void SetUp()
+      public void setup_before_each_test()
       {
          // UseDefaultBuilder uses the exe directory, so we need to use the actual output directory
          _testDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location ?? Directory.GetCurrentDirectory())!;
@@ -27,7 +27,7 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
       }
 
       [TearDown]
-      public void TearDown()
+      public void teardown_after_each_test()
       {
          // Restore original directory
          Directory.SetCurrentDirectory(_originalDirectory);
@@ -56,39 +56,32 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
       {
          // Get the application name prefix by creating a temporary host
          // This is needed because the prefix is based on the application name with dots removed
-         var tempHost = new HostBuilder()
-            .UseDefaultBuilder(Array.Empty<string>())
+         using var host = new HostBuilder()
+            .UseDefaultBuilder([])
             .Build();
          
-         var hostEnvironment = tempHost.Services.GetRequiredService<IHostEnvironment>();
-         var prefix = $"{hostEnvironment.ApplicationName.Replace(".", "")}_";
-         tempHost.Dispose();
-         
-         return prefix;
+         var hostEnvironment = host.Services.GetRequiredService<IHostEnvironment>();
+         return $"{hostEnvironment.ApplicationName.Replace(".", "")}_";
       }
 
       [Test]
       public void should_load_base_appsettings_json()
       {
-         // Arrange
          var appSettingsPath = Path.Combine(_testDirectory, "appsettings.json");
          File.WriteAllText(appSettingsPath, @"{""TestKey"": ""BaseValue""}");
 
-         // Act
-         var host = new HostBuilder()
-            .UseDefaultBuilder(Array.Empty<string>())
+         using var host = new HostBuilder()
+            .UseDefaultBuilder([])
             .Build();
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
 
-         // Assert
          Assert.That(configuration["TestKey"], Is.EqualTo("BaseValue"));
       }
 
       [Test]
       public void should_load_environment_specific_appsettings_json()
       {
-         // Arrange
          var appSettingsPath = Path.Combine(_testDirectory, "appsettings.json");
          var appSettingsDevelopmentPath = Path.Combine(_testDirectory, "appsettings.Development.json");
          
@@ -97,14 +90,12 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
 
          Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", "Development");
 
-         // Act
-         var host = new HostBuilder()
-            .UseDefaultBuilder(Array.Empty<string>())
+         using var host = new HostBuilder()
+            .UseDefaultBuilder([])
             .Build();
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
 
-         // Assert
          Assert.That(configuration["TestKey"], Is.EqualTo("DevelopmentValue"), "Environment-specific setting should override base setting");
          Assert.That(configuration["OnlyInBase"], Is.EqualTo("Base"), "Base settings should still be available");
       }
@@ -112,7 +103,6 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
       [Test]
       public void should_load_production_specific_appsettings_json()
       {
-         // Arrange
          var appSettingsPath = Path.Combine(_testDirectory, "appsettings.json");
          var appSettingsProductionPath = Path.Combine(_testDirectory, "appsettings.Production.json");
          
@@ -121,104 +111,85 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
 
          Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", "Production");
 
-         // Act
-         var host = new HostBuilder()
-            .UseDefaultBuilder(Array.Empty<string>())
+         using var host = new HostBuilder()
+            .UseDefaultBuilder([])
             .Build();
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
 
-         // Assert
          Assert.That(configuration["TestKey"], Is.EqualTo("ProductionValue"));
       }
 
       [Test]
       public void should_handle_missing_environment_specific_appsettings()
       {
-         // Arrange
          var appSettingsPath = Path.Combine(_testDirectory, "appsettings.json");
          File.WriteAllText(appSettingsPath, @"{""TestKey"": ""BaseValue""}");
 
          Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", "Staging");
 
-         // Act
-         var host = new HostBuilder()
-            .UseDefaultBuilder(Array.Empty<string>())
+         using var host = new HostBuilder()
+            .UseDefaultBuilder([])
             .Build();
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
 
-         // Assert
          Assert.That(configuration["TestKey"], Is.EqualTo("BaseValue"));
       }
 
       [Test]
       public void should_load_environment_variables_with_app_prefix()
       {
-         // Arrange
-         var appSettingsPath = Path.Combine(_testDirectory, "appsettings.json");
-         File.WriteAllText(appSettingsPath, @"{""Logging"": {""LogLevel"": {""Default"": ""Information""}}}");
-
          var prefix = GetApplicationNamePrefix();
          var envVarName = $"{prefix}TestKey";
          Environment.SetEnvironmentVariable(envVarName, "EnvVarValue");
 
-         // Act
-         var host = new HostBuilder()
-            .UseDefaultBuilder(Array.Empty<string>())
+         using var host = new HostBuilder()
+            .UseDefaultBuilder([])
             .Build();
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
 
-         // Assert
          Assert.That(configuration["TestKey"], Is.EqualTo("EnvVarValue"));
 
-         // Cleanup
          Environment.SetEnvironmentVariable(envVarName, null);
       }
 
       [Test]
       public void should_load_dotnet_environment_variables()
       {
-         // Arrange
          Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", "Testing");
 
-         // Act
-         var host = new HostBuilder()
-            .UseDefaultBuilder(Array.Empty<string>())
+         using var host = new HostBuilder()
+            .UseDefaultBuilder([])
             .Build();
 
          var hostEnvironment = host.Services.GetRequiredService<IHostEnvironment>();
 
-         // Assert
          Assert.That(hostEnvironment.EnvironmentName, Is.EqualTo("Testing"));
       }
 
       [Test]
       public void should_load_command_line_arguments()
       {
-         // Arrange
          var appSettingsPath = Path.Combine(_testDirectory, "appsettings.json");
          File.WriteAllText(appSettingsPath, @"{""TestKey"": ""BaseValue""}");
 
          var args = new[] { "--TestKey=CommandLineValue", "--AnotherKey=AnotherValue" };
 
-         // Act
-         var host = new HostBuilder()
+         using var host = new HostBuilder()
             .UseDefaultBuilder(args)
             .Build();
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
 
-         // Assert
          Assert.That(configuration["TestKey"], Is.EqualTo("CommandLineValue"), "Command line args should override file settings");
          Assert.That(configuration["AnotherKey"], Is.EqualTo("AnotherValue"), "Command line args should be available");
       }
 
       [Test]
-      public void should_prioritize_configuration_sources_correctly()
+      public void should_override_appsettings_with_environment_variables()
       {
-         // Arrange
          var appSettingsPath = Path.Combine(_testDirectory, "appsettings.json");
          var appSettingsDevelopmentPath = Path.Combine(_testDirectory, "appsettings.Development.json");
          
@@ -230,40 +201,53 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          var prefix = GetApplicationNamePrefix();
          var envVarName = $"{prefix}TestKey";
          Environment.SetEnvironmentVariable(envVarName, "EnvVarValue");
+
+         using var host = new HostBuilder()
+            .UseDefaultBuilder([])
+            .Build();
+
+         var configuration = host.Services.GetRequiredService<IConfiguration>();
+
+         Assert.That(configuration["TestKey"], Is.EqualTo("EnvVarValue"), 
+            "Environment variables should override appsettings");
+
+         Environment.SetEnvironmentVariable(envVarName, null);
+      }
+
+      [Test]
+      public void should_override_environment_variables_with_command_line_arguments()
+      {
+         var prefix = GetApplicationNamePrefix();
+         var envVarName = $"{prefix}TestKey";
+         Environment.SetEnvironmentVariable(envVarName, "EnvVarValue");
          
          var args = new[] { "--TestKey=CommandLineValue" };
 
-         // Act
-         var host = new HostBuilder()
+         using var host = new HostBuilder()
             .UseDefaultBuilder(args)
             .Build();
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
 
-         // Assert
          Assert.That(configuration["TestKey"], Is.EqualTo("CommandLineValue"), 
-            "Command line args should have highest priority");
+            "Command line args should override environment variables");
 
-         // Cleanup
          Environment.SetEnvironmentVariable(envVarName, null);
       }
 
       [Test]
       public void should_validate_scopes_in_development()
       {
-         // Arrange
          Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", "Development");
 
-         // Act
-         var host = new HostBuilder()
-            .UseDefaultBuilder(Array.Empty<string>())
+         using var host = new HostBuilder()
+            .UseDefaultBuilder([])
             .ConfigureServices((context, services) =>
             {
                services.AddScoped<TestScopedService>();
             })
             .Build();
 
-         // Assert
          Assert.Throws<InvalidOperationException>(() =>
          {
             host.Services.GetRequiredService<TestScopedService>();
@@ -273,19 +257,16 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
       [Test]
       public void should_not_validate_scopes_in_production()
       {
-         // Arrange
          Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", "Production");
 
-         // Act
-         var host = new HostBuilder()
-            .UseDefaultBuilder(Array.Empty<string>())
+         using var host = new HostBuilder()
+            .UseDefaultBuilder([])
             .ConfigureServices((context, services) =>
             {
                services.AddScoped<TestScopedService>();
             })
             .Build();
 
-         // Assert
          Assert.DoesNotThrow(() =>
          {
             host.Services.GetRequiredService<TestScopedService>();
