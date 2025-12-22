@@ -52,6 +52,22 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          }
       }
 
+      private static string GetApplicationNamePrefix()
+      {
+         // Get the application name prefix by creating a temporary host
+         // This is needed because the prefix is based on the application name with dots removed
+         var tempHost = new HostBuilder()
+            .UseDefaultBuilder(Array.Empty<string>())
+            .ConfigureServices((context, services) => { })
+            .Build();
+         
+         var hostEnvironment = tempHost.Services.GetRequiredService<IHostEnvironment>();
+         var prefix = $"{hostEnvironment.ApplicationName.Replace(".", "")}_";
+         tempHost.Dispose();
+         
+         return prefix;
+      }
+
       [Test]
       public void should_load_base_appsettings_json()
       {
@@ -59,11 +75,9 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          var appSettingsPath = Path.Combine(_testDirectory, "appsettings.json");
          File.WriteAllText(appSettingsPath, @"{""TestKey"": ""BaseValue""}");
 
-         var args = new string[0];
-
          // Act
          var host = new HostBuilder()
-            .UseDefaultBuilder(args)
+            .UseDefaultBuilder(Array.Empty<string>())
             .ConfigureServices((context, services) => { })
             .Build();
 
@@ -84,11 +98,10 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          File.WriteAllText(appSettingsDevelopmentPath, @"{""TestKey"": ""DevelopmentValue""}");
 
          Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", "Development");
-         var args = new string[0];
 
          // Act
          var host = new HostBuilder()
-            .UseDefaultBuilder(args)
+            .UseDefaultBuilder(Array.Empty<string>())
             .ConfigureServices((context, services) => { })
             .Build();
 
@@ -110,11 +123,10 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          File.WriteAllText(appSettingsProductionPath, @"{""TestKey"": ""ProductionValue""}");
 
          Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", "Production");
-         var args = new string[0];
 
          // Act
          var host = new HostBuilder()
-            .UseDefaultBuilder(args)
+            .UseDefaultBuilder(Array.Empty<string>())
             .ConfigureServices((context, services) => { })
             .Build();
 
@@ -132,11 +144,10 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          File.WriteAllText(appSettingsPath, @"{""TestKey"": ""BaseValue""}");
 
          Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", "Staging");
-         var args = new string[0];
 
          // Act
          var host = new HostBuilder()
-            .UseDefaultBuilder(args)
+            .UseDefaultBuilder(Array.Empty<string>())
             .ConfigureServices((context, services) => { })
             .Build();
 
@@ -153,25 +164,13 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          var appSettingsPath = Path.Combine(_testDirectory, "appsettings.json");
          File.WriteAllText(appSettingsPath, @"{""Logging"": {""LogLevel"": {""Default"": ""Information""}}}");
 
-         var args = new string[0];
-
-         // First, get the actual application name to determine the prefix
-         var tempHost = new HostBuilder()
-            .UseDefaultBuilder(args)
-            .ConfigureServices((context, services) => { })
-            .Build();
-         
-         var hostEnvironment = tempHost.Services.GetRequiredService<IHostEnvironment>();
-         var prefix = $"{hostEnvironment.ApplicationName.Replace(".", "")}_";
-         tempHost.Dispose();
-
-         // Now set the environment variable with the correct prefix
+         var prefix = GetApplicationNamePrefix();
          var envVarName = $"{prefix}TestKey";
          Environment.SetEnvironmentVariable(envVarName, "EnvVarValue");
 
          // Act
          var host = new HostBuilder()
-            .UseDefaultBuilder(args)
+            .UseDefaultBuilder(Array.Empty<string>())
             .ConfigureServices((context, services) => { })
             .Build();
 
@@ -189,11 +188,10 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
       {
          // Arrange
          Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", "Testing");
-         var args = new string[0];
 
          // Act
          var host = new HostBuilder()
-            .UseDefaultBuilder(args)
+            .UseDefaultBuilder(Array.Empty<string>())
             .ConfigureServices((context, services) => { })
             .Build();
 
@@ -236,23 +234,12 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          File.WriteAllText(appSettingsDevelopmentPath, @"{""TestKey"": ""DevelopmentValue""}");
 
          Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", "Development");
-         
-         var args = new string[0];
-         
-         // First, get the actual application name to determine the prefix
-         var tempHost = new HostBuilder()
-            .UseDefaultBuilder(args)
-            .ConfigureServices((context, services) => { })
-            .Build();
-         
-         var hostEnvironment = tempHost.Services.GetRequiredService<IHostEnvironment>();
-         var prefix = $"{hostEnvironment.ApplicationName.Replace(".", "")}_";
-         tempHost.Dispose();
 
-         // Set env var and command line args
+         var prefix = GetApplicationNamePrefix();
          var envVarName = $"{prefix}TestKey";
          Environment.SetEnvironmentVariable(envVarName, "EnvVarValue");
-         args = new[] { "--TestKey=CommandLineValue" };
+         
+         var args = new[] { "--TestKey=CommandLineValue" };
 
          // Act
          var host = new HostBuilder()
@@ -275,11 +262,10 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
       {
          // Arrange
          Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", "Development");
-         var args = new string[0];
 
          // Act
          var host = new HostBuilder()
-            .UseDefaultBuilder(args)
+            .UseDefaultBuilder(Array.Empty<string>())
             .ConfigureServices((context, services) =>
             {
                // Add a scoped service to test validation
@@ -299,11 +285,10 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
       {
          // Arrange
          Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", "Production");
-         var args = new string[0];
 
          // Act
          var host = new HostBuilder()
-            .UseDefaultBuilder(args)
+            .UseDefaultBuilder(Array.Empty<string>())
             .ConfigureServices((context, services) =>
             {
                // Add a scoped service to test validation
@@ -318,6 +303,7 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          });
       }
 
+      // Test service used to verify scope validation behavior
       private class TestScopedService
       {
       }
