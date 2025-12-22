@@ -58,7 +58,6 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          // This is needed because the prefix is based on the application name with dots removed
          var tempHost = new HostBuilder()
             .UseDefaultBuilder(Array.Empty<string>())
-            .ConfigureServices((context, services) => { })
             .Build();
          
          var hostEnvironment = tempHost.Services.GetRequiredService<IHostEnvironment>();
@@ -78,7 +77,6 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          // Act
          var host = new HostBuilder()
             .UseDefaultBuilder(Array.Empty<string>())
-            .ConfigureServices((context, services) => { })
             .Build();
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
@@ -102,7 +100,6 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          // Act
          var host = new HostBuilder()
             .UseDefaultBuilder(Array.Empty<string>())
-            .ConfigureServices((context, services) => { })
             .Build();
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
@@ -127,7 +124,6 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          // Act
          var host = new HostBuilder()
             .UseDefaultBuilder(Array.Empty<string>())
-            .ConfigureServices((context, services) => { })
             .Build();
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
@@ -148,12 +144,11 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          // Act
          var host = new HostBuilder()
             .UseDefaultBuilder(Array.Empty<string>())
-            .ConfigureServices((context, services) => { })
             .Build();
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
 
-         // Assert - should fall back to base settings
+         // Assert
          Assert.That(configuration["TestKey"], Is.EqualTo("BaseValue"));
       }
 
@@ -171,7 +166,6 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          // Act
          var host = new HostBuilder()
             .UseDefaultBuilder(Array.Empty<string>())
-            .ConfigureServices((context, services) => { })
             .Build();
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
@@ -192,7 +186,6 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          // Act
          var host = new HostBuilder()
             .UseDefaultBuilder(Array.Empty<string>())
-            .ConfigureServices((context, services) => { })
             .Build();
 
          var hostEnvironment = host.Services.GetRequiredService<IHostEnvironment>();
@@ -213,7 +206,6 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          // Act
          var host = new HostBuilder()
             .UseDefaultBuilder(args)
-            .ConfigureServices((context, services) => { })
             .Build();
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
@@ -244,12 +236,11 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
          // Act
          var host = new HostBuilder()
             .UseDefaultBuilder(args)
-            .ConfigureServices((context, services) => { })
             .Build();
 
          var configuration = host.Services.GetRequiredService<IConfiguration>();
 
-         // Assert - Command line should have highest priority
+         // Assert
          Assert.That(configuration["TestKey"], Is.EqualTo("CommandLineValue"), 
             "Command line args should have highest priority");
 
@@ -268,12 +259,11 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
             .UseDefaultBuilder(Array.Empty<string>())
             .ConfigureServices((context, services) =>
             {
-               // Add a scoped service to test validation
                services.AddScoped<TestScopedService>();
             })
             .Build();
 
-         // Assert - Attempting to resolve a scoped service from root provider in Development should throw
+         // Assert
          Assert.Throws<InvalidOperationException>(() =>
          {
             host.Services.GetRequiredService<TestScopedService>();
@@ -291,12 +281,11 @@ namespace Stackage.Core.Tests.HostBuilderExtensionsTests
             .UseDefaultBuilder(Array.Empty<string>())
             .ConfigureServices((context, services) =>
             {
-               // Add a scoped service to test validation
                services.AddScoped<TestScopedService>();
             })
             .Build();
 
-         // Assert - In Production, resolving scoped service from root provider should not throw
+         // Assert
          Assert.DoesNotThrow(() =>
          {
             host.Services.GetRequiredService<TestScopedService>();
