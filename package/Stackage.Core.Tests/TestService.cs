@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Stackage.Core.Tests
 {
@@ -100,17 +101,20 @@ namespace Stackage.Core.Tests
 
       public TestServer CreateServer()
       {
-         var builder = new WebHostBuilder();
-
-         _configureWebHostBuilder(builder);
-
-         builder
+         var host = new HostBuilder()
             .ConfigureAppConfiguration(_configureConfiguration)
             .ConfigureServices((context, services) => _configureServices(services, context.Configuration))
-            .Configure(_configure);
+            .ConfigureWebHost(webHostBuilder =>
+            {
+               webHostBuilder
+                  .UseTestServer()
+                  .Configure(_configure);
 
-         var server = new TestServer(builder);
-         return server;
+               _configureWebHostBuilder(webHostBuilder);
+            })
+            .Start();
+
+         return host.GetTestServer();
       }
 
       private static void AddHeadersToRequest(IDictionary<string, string> headers, HttpRequestMessage request)
