@@ -1,5 +1,5 @@
-using System.IO;
-using System.Reflection;
+// using System.IO;
+// using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -7,10 +7,12 @@ namespace Stackage.Core.Extensions
 {
    public static class HostBuilderExtensions
    {
-      public static IHostBuilder UseDefaultBuilder(this IHostBuilder hostBuilder, string[] args)
+      public static IHostBuilder UseDefaultBuilder(
+         this IHostBuilder hostBuilder,
+         string[] args)
       {
          return hostBuilder
-            .UseContentRoot(GetExeDirectory())
+            //.UseContentRoot(GetExeDirectory(path))
             .ConfigureHostConfiguration(builder =>
             {
                builder
@@ -19,10 +21,12 @@ namespace Stackage.Core.Extensions
             })
             .ConfigureAppConfiguration((context, builder) =>
             {
-               var prefix = $"{context.HostingEnvironment.ApplicationName.Replace(".", "")}_";
+               var env = context.HostingEnvironment;
+               var prefix = $"{env.ApplicationName.Replace(".", "")}_";
 
                builder
-                  .AddJsonFile("appsettings.json")
+                  .AddJsonFile("appsettings.json", optional: true)
+                  .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                   .AddDockerSecrets(prefix)
                   .AddEnvironmentVariables(prefix)
                   .AddCommandLine(args);
@@ -35,10 +39,10 @@ namespace Stackage.Core.Extensions
                options.ValidateOnBuild = isDevelopment;
             });
       }
-
-      private static string GetExeDirectory()
-      {
-         return Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location ?? Directory.GetCurrentDirectory())!;
-      }
+      //
+      // private static string GetExeDirectory(string? path = null)
+      // {
+      //    return Path.GetDirectoryName(path ?? Assembly.GetEntryAssembly()?.Location ?? Directory.GetCurrentDirectory())!;
+      // }
    }
 }

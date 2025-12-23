@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Stackage.Core.Abstractions;
-using Stackage.Core.Abstractions.Metrics;
 using Stackage.Core.Abstractions.Polly;
 using Stackage.Core.Extensions;
 
