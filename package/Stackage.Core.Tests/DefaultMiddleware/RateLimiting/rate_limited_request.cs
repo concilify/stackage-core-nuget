@@ -25,7 +25,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.RateLimiting
          using (var server = TestService.CreateServer())
          {
             var foo = TestService.GetAsync(server, "/foo");
-            await Task.Delay(100);
+            await Task.Delay(200);
             var bar = TestService.GetAsync(server, "/bar");
 
             await Task.WhenAll(foo, bar);
