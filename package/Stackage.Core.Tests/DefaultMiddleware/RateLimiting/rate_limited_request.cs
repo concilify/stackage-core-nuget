@@ -25,7 +25,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.RateLimiting
          using (var server = TestService.CreateServer())
          {
             var foo = TestService.GetAsync(server, "/foo");
-            await Task.Delay(1);
+            await Task.Delay(200);
             var bar = TestService.GetAsync(server, "/bar");
 
             await Task.WhenAll(foo, bar);
@@ -86,7 +86,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.RateLimiting
       [Test]
       public void should_return_content_type_json()
       {
-         _barResponse.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+         _barResponse.Content.Headers.ContentType?.MediaType.ShouldBe("application/json");
       }
 
       [Test]

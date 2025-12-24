@@ -30,7 +30,7 @@ jobs:
         dotnet pack --configuration Release -p:Version=${VERSION} --output . package/Stackage.Core.SystemTextJson/Stackage.Core.SystemTextJson.csproj
 
     - name: Test
-      run: dotnet test --configuration Release -p:Version=${VERSION} package/Stackage.Core.Tests/Stackage.Core.Tests.csproj
+      run: dotnet test --configuration Release -p:Version=${VERSION} -p:TestTfmsInParallel=false package/Stackage.Core.Tests/Stackage.Core.Tests.csproj
 
     - name: Push
       run: dotnet nuget push *.${VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${NUGET_PUSH_TOKEN}
