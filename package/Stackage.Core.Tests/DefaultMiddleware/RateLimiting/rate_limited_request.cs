@@ -24,22 +24,14 @@ namespace Stackage.Core.Tests.DefaultMiddleware.RateLimiting
       {
          using (var server = TestService.CreateServer())
          {
-            var first = TestService.GetAsync(server, "/foo");
+            var foo = TestService.GetAsync(server, "/foo");
             await Task.Delay(200);
-            var second = TestService.GetAsync(server, "/bar");
+            var bar = TestService.GetAsync(server, "/bar");
 
-            await Task.WhenAll(first, second);
+            await Task.WhenAll(foo, bar);
 
-            if (first.Result.RequestMessage?.RequestUri?.LocalPath == "/foo")
-            {
-               _fooResponse = first.Result;
-               _barResponse = second.Result;
-            }
-            else
-            {
-               _fooResponse = second.Result;
-               _barResponse = first.Result;
-            }
+            _fooResponse = foo.Result;
+            _barResponse = bar.Result;
 
             _fooContent = await _fooResponse.Content.ReadAsStringAsync();
             _barContent = await _barResponse.Content.ReadAsStringAsync();
@@ -94,7 +86,7 @@ namespace Stackage.Core.Tests.DefaultMiddleware.RateLimiting
       [Test]
       public void should_return_content_type_json()
       {
-         _barResponse.Content.Headers.ContentType.MediaType.ShouldBe("application/json");
+         _barResponse.Content.Headers.ContentType?.MediaType.ShouldBe("application/json");
       }
 
       [Test]
