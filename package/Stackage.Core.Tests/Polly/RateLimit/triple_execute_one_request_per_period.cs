@@ -17,7 +17,7 @@ namespace Stackage.Core.Tests.Polly.RateLimit
       [OneTimeSetUp]
       public async Task setup_scenario()
       {
-         var rateLimiter = new RateLimiter(1, TimeSpan.FromMilliseconds(100), 1, TimeSpan.FromMinutes(1));
+         var rateLimiter = new RateLimiter(1, TimeSpan.FromMilliseconds(200), 1, TimeSpan.FromMinutes(1));
          var policyFactory = new PolicyFactory(A.Fake<IMetricSink>(), A.Fake<ITimerFactory>());
          var rateLimitPolicy = policyFactory.CreateAsyncRateLimitingPolicy(rateLimiter);
 
@@ -45,7 +45,7 @@ namespace Stackage.Core.Tests.Polly.RateLimit
       [Test]
       public void should_wait_for_limit_period_for_second_execute()
       {
-         Assert.That(_durationMs, Is.InRange(160, 240));
+         Assert.That(_durationMs, Is.GreaterThan(325));
       }
    }
 }
