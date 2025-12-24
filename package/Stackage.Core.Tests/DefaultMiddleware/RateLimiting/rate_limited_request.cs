@@ -24,14 +24,22 @@ namespace Stackage.Core.Tests.DefaultMiddleware.RateLimiting
       {
          using (var server = TestService.CreateServer())
          {
-            var foo = TestService.GetAsync(server, "/foo");
+            var first = TestService.GetAsync(server, "/foo");
             await Task.Delay(200);
-            var bar = TestService.GetAsync(server, "/bar");
+            var second = TestService.GetAsync(server, "/bar");
 
-            await Task.WhenAll(foo, bar);
+            await Task.WhenAll(first, second);
 
-            _fooResponse = foo.Result;
-            _barResponse = bar.Result;
+            if (first.Result.RequestMessage?.RequestUri?.LocalPath == "/foo")
+            {
+               _fooResponse = first.Result;
+               _barResponse = second.Result;
+            }
+            else
+            {
+               _fooResponse = second.Result;
+               _barResponse = first.Result;
+            }
 
             _fooContent = await _fooResponse.Content.ReadAsStringAsync();
             _barContent = await _barResponse.Content.ReadAsStringAsync();
