@@ -103,11 +103,11 @@ namespace Stackage.Core.Tests
       {
          var host = new HostBuilder()
             .ConfigureAppConfiguration(_configureConfiguration)
-            .ConfigureServices((context, services) => _configureServices(services, context.Configuration))
             .ConfigureWebHost(webHostBuilder =>
             {
                webHostBuilder
                   .UseTestServer()
+                  .ConfigureServices((context, services) => _configureServices(services, context.Configuration))
                   .Configure(_configure);
 
                _configureWebHostBuilder(webHostBuilder);
