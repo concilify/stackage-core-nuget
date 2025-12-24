@@ -52,12 +52,7 @@ namespace Stackage.Core.Extensions
             options.ForwardedHeaders = ForwardedHeaders.All;
 
             // Remove default networks and proxies - if not empty would need to supply IP address of Docker network
-            // .NET 10 renamed KnownNetworks to KnownIPNetworks
-#if NET10_0_OR_GREATER
             options.KnownIPNetworks.Clear();
-#else
-            options.KnownNetworks.Clear();
-#endif
             options.KnownProxies.Clear();
          });
 
